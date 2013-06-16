@@ -17,23 +17,27 @@ var app = express()
 app.engine('.html', cons.swig);
 app.set('view engine', 'html');
 swig.init({
-	route: __dirname + '/templates/',
-	allowErrors: true
+	root: __dirname + '/templates/',
+	allowErrors: true,
+	cache: false // FOR DEV ONLY
 });
-app.set('views', __dirname + '/templates/')
+app.set('views', __dirname + '/templates/');
 
 // Enable cookie-based sessions
 app.use(express.cookieParser());
 app.use(express.cookieSession({secret: 's1@J&Pa#6CePl1FA7FMa'}));
 
+// Handle post/etc data sent to the server
+app.use(express.bodyParser())
+
 // Serve static files
 app.use('/static', express.static(__dirname + '/public'));
 
 // Import the path routes
-routes.setup(app)
+routes.setup(app);
 
 // Sockets
-sockets.setup(io)
+sockets.setup(io);
 
 // Start the server
 server.listen(8080);

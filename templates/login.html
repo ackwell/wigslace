@@ -1,1 +1,8 @@
 {% extends 'layout.html' %}
+
+{% block body %}
+<form action="{{ page_url }}" method="post">
+	<input type="text" name="username"/>
+	<input type="submit"/>
+</form>
+{% endblock %}

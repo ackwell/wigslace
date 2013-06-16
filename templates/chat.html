@@ -1,11 +1,14 @@
 {% extends 'layout.html' %}
 
-{% block head_js %}
+{% block headJS %}
 <script src="/socket.io/socket.io.js"></script>
 <script src="/static/js/marked.js"></script>
 {% endblock %}
 
 {% block body %}
+{% if !loggedIn %}
+<a href="/login">Login</a>
+{% endif %}
 <script>
 	var socket = io.connect(window.location.origin);
 	socket.on('news', function(data) {

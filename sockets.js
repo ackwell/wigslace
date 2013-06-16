@@ -9,4 +9,4 @@ function setup(io) {
 	});
 }
 
-module.exports.setup = setup
+module.exports.setup = setup;
