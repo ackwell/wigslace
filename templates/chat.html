@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block head_js %}
+<script src="/socket.io/socket.io.js"></script>
+<script src="/static/js/marked.js"></script>
+{% endblock %}
+
+{% block body %}
+<script>
+	var socket = io.connect(window.location.origin);
+	socket.on('news', function(data) {
+		console.log(data);
+		socket.emit('my other event', {my: 'data'});
+	});
+</script>
+{% endblock %}
