@@ -1,43 +1,108 @@
 // Requires
 var express = require('express')
 	, cons = require('consolidate')
+	, connect = require('connect')
 	, http = require('http')
 	, socketio = require('socket.io')
 	, swig = require('swig')
 	// my stuff
-	, routes = require('./routes')
-	, sockets = require('./sockets');
+	, routes = require('./routes');
 
 // Set up the server, app, etc
 var app = express()
 	, server = http.createServer(app)
 	, io = socketio.listen(server);
 
-// Initiate the templating engine
+/*
+ * Templating engine
+ */
 app.engine('.html', cons.swig);
 app.set('view engine', 'html');
 swig.init({
-	root: __dirname + '/templates/',
-	allowErrors: true,
-	cache: false // FOR DEV ONLY
+	root: __dirname + '/templates/'
+, allowErrors: true
+, cache: false // FOR DEV ONLY
 });
 app.set('views', __dirname + '/templates/');
 
-// Enable cookie-based sessions
-app.use(express.cookieParser());
-app.use(express.cookieSession({secret: 's1@J&Pa#6CePl1FA7FMa'}));
+/*
+ * Sessions, etc
+ */
+var sessionStore = new connect.session.MemoryStore();
+app.set('secretKey', 'zvv2CGRs7ZK0U*Cx&kWVuAE#K5l8xY8gD3jdVVPql&tebW6xFq');
+app.set('cookieSessionKey', 'sid');
 
+app.use(express.cookieParser(app.get('secretKey')));
+app.use(express.session({
+	key: app.get('cookieSessionKey')
+, store: sessionStore
+}));
+
+
+/*
+ * Other middleware and handlers
+ */
 // Handle post/etc data sent to the server
 app.use(express.bodyParser())
 
 // Serve static files
 app.use('/static', express.static(__dirname + '/public'));
 
-// Import the path routes
-routes.setup(app);
+/*
+ * Routing (pulled in from seperate file)
+ */
+app.get('/', routes.index);
+app.all('/login', routes.login);
 
-// Sockets
-sockets.setup(io);
+/*
+ * Socket.io
+ */
+// Set up socket authorisation and session sharing
+io.set('authorization', function(handshakeData, callback) {
+	if (handshakeData.headers.cookie) {
+		var cookie = require('cookie').parse(decodeURIComponent(handshakeData.headers.cookie));
+		cookie = connect.utils.parseSignedCookies(cookie, app.get('secretKey'));
+		var sessionID = cookie[app.get('cookieSessionKey')];
+
+		sessionStore.get(sessionID, function(err, session) {
+			if (err) { callback(err.message, false); }
+			else if (!session) { callback('Session not found.', false); }
+			else {
+				handshakeData.cookie = cookie;
+				handshakeData.sessionID = sessionID;
+				handshakeData.sessionStore = sessionStore;
+				handshakeData.session = new express.session.Session(handshakeData, session);
+
+				callback(null, true);
+			}
+		});
+	}
+	else {
+		callback('Cookie not found.', false);
+	}
+});
+
+
+
+io.sockets.on('connection', function (socket) {
+	// temp for testing
+	socket.emit('broadcast', {username:"test", message:"*this* **is** a ***test*** [message](https://www.google.com)"});
+	
+	// when a message is recieverd, broadcast to all clients
+	socket.on('message', function(message) {
+		io.sockets.emit('broadcast', {username: socket.handshake.session.username, message: message});
+	});
+
+	// keep the session alive
+	var sessionReloadIntervalID = setInterval(function() {
+		socket.handshake.session.reload(function() {
+			socket.handshake.session.touch().save();
+		});
+	}, 60 * 2 * 1000);
+	socket.on('disconnect', function(message) {
+		clearInterval(sessionReloadIntervalID);
+	});
+});
 
 // Start the server
 server.listen(8080);

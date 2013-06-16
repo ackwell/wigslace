@@ -1,19 +1,22 @@
 {% extends 'layout.html' %}
 
 {% block headJS %}
-<script src="/socket.io/socket.io.js"></script>
-<script src="/static/js/marked.js"></script>
+	{% parent %}
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="/static/js/marked.js"></script>
+	<script src="/static/js/chat.js"></script>
 {% endblock %}
 
 {% block body %}
-{% if !loggedIn %}
-<a href="/login">Login</a>
-{% endif %}
-<script>
-	var socket = io.connect(window.location.origin);
-	socket.on('news', function(data) {
-		console.log(data);
-		socket.emit('my other event', {my: 'data'});
-	});
-</script>
+	{% if !loggedIn %}<a href="/login">Login</a>{% endif %}
+	<div id="chat">
+		<div class="messages">
+		</div>
+		{% if loggedIn %}
+			<form action="javascript:void(0);" class="message-input">
+				<input type="text" name="message"/>
+				<input type="submit"/>
+			</form>
+		{% endif %}
+	</div>
 {% endblock %}
