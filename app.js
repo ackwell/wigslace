@@ -29,7 +29,7 @@ app.set('views', __dirname + '/templates/');
  * Sessions, etc
  */
 var sessionStore = new connect.session.MemoryStore();
-app.set('secretKey', 'zvv2CGRs7ZK0U*Cx&kWVuAE#K5l8xY8gD3jdVVPql&tebW6xFq');
+app.set('secretKey', process.env.SESSION_SECRET || 'Development secret key.');
 app.set('cookieSessionKey', 'sid');
 
 app.use(express.cookieParser(app.get('secretKey')));
@@ -46,7 +46,7 @@ app.use(express.session({
 app.use(express.bodyParser())
 
 // Serve static files
-app.use('/static', express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/static'));
 
 /*
  * Routing (pulled in from seperate file)
@@ -82,8 +82,7 @@ io.set('authorization', function(handshakeData, callback) {
 	}
 });
 
-
-
+// Socket stuff
 io.sockets.on('connection', function (socket) {
 	// temp for testing
 	socket.emit('broadcast', {username:"test", message:"*this* **is** a ***test*** [message](https://www.google.com)"});
@@ -105,4 +104,4 @@ io.sockets.on('connection', function (socket) {
 });
 
 // Start the server
-server.listen(8080);
+server.listen(process.env.VCAP_APP_PORT || 8080);
