@@ -1,5 +1,11 @@
 {% extends 'layout.html' %}
 
+{% block headCSS %}
+<style>
+p {display: inline-block;}
+</style>
+{% endblock %}
+
 {% block headJS %}
 	{% parent %}
 	<script src="/socket.io/socket.io.js"></script>

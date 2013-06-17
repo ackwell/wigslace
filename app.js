@@ -1,14 +1,15 @@
 // Requires
-var express = require('express')
+var connect = require('connect')
 	, cons = require('consolidate')
-	, connect = require('connect')
+	, express = require('express')
 	, http = require('http')
 	, socketio = require('socket.io')
 	, swig = require('swig')
-	// my stuff
+	, sanitise = require('validator').sanitize
+	// My stuff
 	, routes = require('./routes');
 
-// Set up the server, app, etc
+// Set up the server, app, and other bits and pieces
 var app = express()
 	, server = http.createServer(app)
 	, io = socketio.listen(server);
@@ -84,11 +85,16 @@ io.set('authorization', function(handshakeData, callback) {
 
 // Socket stuff
 io.sockets.on('connection', function (socket) {
-	// temp for testing
-	socket.emit('broadcast', {username:"test", message:"*this* **is** a ***test*** [message](https://www.google.com)"});
+	// We have a connection, tell the client as such
+	socket.emit('ready')
 	
-	// when a message is recieverd, broadcast to all clients
+	// when a message is recieverd, process it, then broadcast to all clients
 	socket.on('message', function(message) {
+		// sanitise
+		message = sanitise(message).escape();
+		console.log(message);
+
+		// broadcast
 		io.sockets.emit('broadcast', {username: socket.handshake.session.username, message: message});
 	});
 

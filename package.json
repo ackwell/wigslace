@@ -11,5 +11,6 @@
 	, "express": "3.2.6"
 	, "socket.io": "0.9.16"
 	, "swig": "0.14.0"
+	, "validator": "1.2.0"
 	}
 }

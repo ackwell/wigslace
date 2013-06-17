@@ -8,11 +8,23 @@ $(function() {
 	// Set up a socket.io connection
 	var socket = io.connect(window.location.origin)
 
+	// Server has established a connection, ready to go!
+	socket.on('ready', function() {
+			// temp for testing
+	socket.emit('message', 'i have connected (need to move this to client side)');
+	});
+
 	// If we recieve a message line, add it to the view
+	// The messages are sanitised serverside.
 	socket.on('broadcast', function(data) {
+		var message = data.message;
+		// Parse it with markdown.
+		message = marked(message);
+		console.log(message)
+
 		$('#chat .messages').append(
-			'<p><strong>'+data.username+':&nbsp;</strong>'+data.message+'</p>'
-		)
+			'<div><strong>'+data.username+':&nbsp;</strong>'+message+'</div>'
+		);
 	});
 
 	// If we send a message, send it to the server
