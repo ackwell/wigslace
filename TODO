@@ -1,3 +1,4 @@
+Database model
 more events - connect, ready, etc. show 'connecting' message
 Ignore blank input - probably both server and client
 nickname reservation - login?
