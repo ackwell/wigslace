@@ -47,22 +47,26 @@ app.use(express.session({
 /*
  * Authentication
  */
-var passport = require('passport')
+var Users = require('./users')(db)
+	, passport = require('passport')
 	, LocalStrategy = require('passport-local').Strategy; 
 
 passport.serializeUser(function(user, done) {
 	done(null, user.id);
 });
 passport.deserializeUser(function(id, done) {
-	// check if is user, get data, blah.
-	// Need to delegate users and so on to a db model
+	Users.get(id, done);
 });
 
 passport.use(new LocalStrategy(
 	function(username, password, done) {
-		// Check if the user exists
-		db.sismember('userinfo:users', username); //<-- obviously temp
-		done(null, 'lolhi');
+		Users.get(username, function(err, user) {
+			console.log(user);
+			if (err) { return done(err); }
+			if (!user) { return done(null, false, {message: 'Incorrect Username'}); }
+			// Validate password here!
+			return done(null, user);
+		});
 	}
 ));
 
@@ -89,6 +93,7 @@ function getContext(req) {
 
 // Index page
 app.get('/', function(req, res) {
+	console.log(req.user);
 	data = getContext(req);
 	res.render('index.html', data);
 });
