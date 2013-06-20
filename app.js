@@ -2,7 +2,6 @@
 var connect = require('connect')
 	, express = require('express')
 	, http = require('http')
-	, socketio = require('socket.io')
 	, redis = require('redis')
 
 	, sanitise = require('validator').sanitize;
@@ -10,7 +9,6 @@ var connect = require('connect')
 // Set up the server, app, and other bits and pieces
 var app = express()
 	, server = http.createServer(app)
-	, io = socketio.listen(server)
 	, db = redis.createClient(/* need env vars in here for production server*/);
 
 /*
@@ -21,8 +19,8 @@ var swig = require('swig')
 
 app.engine('.html', cons.swig);
 app.set('view engine', 'html');
-swig.init({
-	root: __dirname + '/templates/'
+swig.init(
+{ root: __dirname + '/templates/'
 , allowErrors: true
 , cache: false // FOR DEV ONLY
 });
@@ -39,8 +37,8 @@ app.set('cookieSessionKey', 'sid');
 
 app.use(express.cookieParser(app.get('secretKey')));
 app.use(express.bodyParser())
-app.use(express.session({
-	key: app.get('cookieSessionKey')
+app.use(express.session(
+{ key: app.get('cookieSessionKey')
 , store: sessionStore
 }));
 
@@ -60,12 +58,11 @@ passport.deserializeUser(function(id, done) {
 
 passport.use(new LocalStrategy(
 	function(username, password, done) {
-		Users.get(username, function(err, user) {
-			console.log(user);
+		Users.is(username, function(err, isUser) {
 			if (err) { return done(err); }
-			if (!user) { return done(null, false, {message: 'Incorrect Username'}); }
+			if (!isUser) { return done(null, false, {message: 'Incorrect Username'}); }
 			// Validate password here!
-			return done(null, user);
+			Users.get(username, done);
 		});
 	}
 ));
@@ -94,21 +91,29 @@ function getContext(req) {
 // Index page
 app.get('/', function(req, res) {
 	console.log(req.user);
-	data = getContext(req);
+	var data = getContext(req);
 	res.render('index.html', data);
 });
 
 // Chat page
 app.get('/chat', function(req, res) {
-	data = getContext(req);
+	var data = getContext(req);
 	data.loggedIn = req.session.username != null;
 
 	res.render('chat.html', data);
 });
 
-// Login page
+// User management
+app.get('/register', function(req, res) {
+	var data = getContext(req);
+	res.render('register.html', data);
+});
+app.post('/register', function(req, res) {
+
+});
+
 app.get('/login', function(req, res) {
-	data = getContext(req);
+	var data = getContext(req);
 
 	// If already logged in, redirect to (edit)? profile page (once i have users lol)
 
@@ -125,8 +130,8 @@ app.get('/login', function(req, res) {
 
 	res.render('login.html', data);
 });
-app.post('/login', passport.authenticate('local', {
-	successRedirect: '/'
+app.post('/login', passport.authenticate('local',
+{ successRedirect: '/'
 , failureRedirect: '/login'
 }));
 
@@ -138,6 +143,17 @@ app.get('/logout', function(req, res) {
 /*
  * Socket.io
  */
+var socketio = require('socket.io')
+	, io = socketio.listen(server);
+// Config
+io.set('log level', 2);
+io.configure('production', function() {
+	io.enable('browser client minification');
+	io.enable('browser client etag');
+	io.enable('browser client gzip');
+	io.set('log level', 1);
+});
+
 // Set up socket authorisation and session sharing
 io.set('authorization', function(handshakeData, callback) {
 	if (handshakeData.headers.cookie) {
@@ -173,9 +189,9 @@ io.sockets.on('connection', function(socket) {
 		// sanitise
 		message = sanitise(message).escape();
 		
-		socket.handshake.lol += 1;
-		socket.handshake.foo = 'hello'
-		console.log(socket.handshake.lol, socket.handshake.foo);
+		// socket.handshake.lol += 1;
+		// socket.handshake.foo = 'hello'
+		//console.log(socket.handshake.lol, socket.handshake.foo);
 
 		// broadcast
 		io.sockets.emit('broadcast', {username: socket.handshake.session.username, message: message});

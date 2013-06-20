@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+	<form action="{{ pageURL }}" method="post">
+		<input type="text" name="username"/>
+		<input type="text" name="email"/>
+		<input type="text" name="password"/>
+		<input type="text" name="confirm"/>
+		<input type="submit"/>
+	</form>
+{% endblock %}
