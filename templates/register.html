@@ -1,11 +1,11 @@
 {% extends 'layout.html' %}
 
 {% block pageHeader %}
-Register <small>Oh hey! A new user!</small>
+Register <small>始めまして！</small>
 {% endblock %}
 
 {% block content %}
-	<form class="form-horizontal" action="{{ pageURL }}" method="post">
+	<form action="{{ pageURL }}" method="post" class="form-horizontal">
 		<div class="control-group">
 			<label class="control-label" for="username">Username</label>
 			<div class="controls">
@@ -32,7 +32,7 @@ Register <small>Oh hey! A new user!</small>
 		</div>
 		<div class="control-group">
 			<div class="controls">
-				<button type="submit" class="btn">Register</button>
+				<button type="submit" class="btn btn-primary">Register</button>
 			</div>
 		</div>
 	</form>

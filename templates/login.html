@@ -1,9 +1,28 @@
 {% extends 'layout.html' %}
 
+{% block pageHeader %}
+Login <small>お帰りなさい～</small>
+{% endblock %}
+
 {% block content %}
-	<form action="{{ pageURL }}" method="post">
-		<input type="text" name="username"/>
-		<input type="text" name="password"/>
-		<input type="submit"/>
+	<form action="{{ pageURL }}" method="post" class="form-horizontal">
+		<div class="control-group">
+			<label class="control-label" for="username">Username</label>
+			<div class="controls">
+				<input type="text" name="username" id="username"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="password">Password</label>
+			<div class="controls">
+				<input type="password" name="password" id="password"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+			<button type="submit" class="btn btn-primary">Login</button>
+			<a href="/recover" class="btn">Forgot password?</a>
+			</div>
+		</div>
 	</form>
 {% endblock %}

@@ -122,17 +122,15 @@ app.get('/register', function(req, res) {
 });
 app.post('/register', function(req, res) {
 	var post = req.body;
-	// Make sure the email is valid
-	try { validator.check(post.email).isEmail(); }
+	// Make sure the fields is valid
+	try {
+		validator.check(post.username, 'Please enter a username.').notEmpty();
+		validator.check(post.email, 'Please enter a valid email address.').isEmail();
+		validator.check(post.password, 'Please ensure your password is at least 6 characters long.').len(6);
+		validator.check(post.password, 'Please enter the same password twice.').equals(post.password_confirm);
+	}
 	catch (e) {
 		req.flash('error', e.message);
-		res.redirect('/register');
-		return;
-	}
-
-	// Make sure the password & confirm match
-	if (post.password != post.password_confirm) {
-		req.flash('error', 'The passwords do not match.');
 		res.redirect('/register');
 		return;
 	}
@@ -162,7 +160,7 @@ app.post('/recover', function(req, res) {
 	var url = req.protocol + '://' + req.get('host') + '/recover/';
 
 	// Make sure the email is valid
-	try { validator.check(req.body.email).isEmail(); }
+	try { validator.check(req.body.email, 'Please enter a valid email address.').isEmail(); }
 	catch (e) {
 		req.flash('error', e.message);
 		res.redirect('/recover');
@@ -200,9 +198,10 @@ app.post('/recover/:token', function(req, res) {
 			res.redirect('/recover');
 		} else {
 			// Make sure the password & confirm match
-			if (req.body.password != req.body.password_confirm) {
-				req.flash('error', 'The passwords do not match.');
-				res.redirect('/recover/'+token);
+			try { validator.check(req.body.password, 'Please enter the same password twice.').equals(req.body.password_confirm); }
+			catch (e) {
+				req.flash('error', e.message);
+				res.redirect('/recover');
 				return;
 			}
 
