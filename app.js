@@ -105,24 +105,21 @@ function getContext(req) {
 
 // Index page
 app.get('/', function(req, res) {
-	if (req.user) {
-		res.redirect('/chat');
-		return;
-	}
-	res.render('index.html', getContext(req));
+	if (req.user) { res.redirect('/chat'); }
+	else { res.render('index.html', getContext(req)); }
 });
 
 // Chat page
 app.get('/chat', function(req, res) {
-	if (!req.user) {
-		res.redirect('/');
-		return;
-	}
-	res.render('chat.html', getContext(req));
+	if (!req.user) { res.redirect('/'); }
+	else { res.render('chat.html', getContext(req)); }
 });
 
 // User management
-app.get('/register', function(req, res) { res.render('register.html', getContext(req)); });
+app.get('/register', function(req, res) {
+	if (req.user) { res.redirect('/'); }
+	else { res.render('register.html', getContext(req)); }
+});
 app.post('/register', function(req, res) {
 	var post = req.body;
 	// Make sure the email is valid
@@ -157,7 +154,10 @@ app.post('/register', function(req, res) {
 	});
 });
 
-app.get('/recover', function(req, res) { res.render('recover.html', getContext(req)); });
+app.get('/recover', function(req, res) {
+	if (req.user) { res.redirect('/'); }
+	else { res.render('recover.html', getContext(req)); }
+});
 app.post('/recover', function(req, res) {
 	var url = req.protocol + '://' + req.get('host') + '/recover/';
 
@@ -220,7 +220,10 @@ app.post('/recover/:token', function(req, res) {
 	});
 });
 
-app.get('/login', function(req, res) { res.render('login.html', getContext(req)); });
+app.get('/login', function(req, res) {
+	if (req.user) { res.redirect('/'); }
+	else { res.render('login.html', getContext(req)); }
+});
 app.post('/login', passport.authenticate('local', {
 	successRedirect: '/'
 , failureRedirect: '/login'
