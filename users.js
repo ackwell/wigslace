@@ -1,5 +1,6 @@
 // Requires
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt')
+	, randomstring = require('randomstring');
 
 /*
  * Email services
@@ -56,12 +57,47 @@ module.exports = function(client) {
 				});
 		}
 
-	, recover: function(email, done) {
-			// Make sure the email is valid
-			client.sismember('users:emails', email, function(err, exists) {
-				if (!exists) { return done(null, false, "No user with that email."); }
-				// email is valid - get their ID from the user:email:(address) store,
-				// reset the password to something random, and send them an email
+	, recover: function(email, returnURL, done) {
+			// Grab the email
+			client.get('users:email:'+email, function(err, username) {
+				// If the email isn't used, chuck a hissy
+				if (!username) { return done(null, false, "No user with that email."); }
+				// Generate a random string to serve their recover page with
+				var token = randomstring.generate();
+				// Expires after 12 hours
+				client.setex('users:recover:'+token, 43200, username, function(err, success) {
+					// Woo more comments. Send them their recovery email
+					var link = returnURL + token;
+					smtp.send({
+						text: 'If you did not request this password reset, please ignore this email, the link will expire in 12 hours. To reset your wigslace password, please visit the following link: '+link
+					, from: 'Wigslace <wigslace@ackwell.com.au>'
+					, to: username+' <'+email+'>'
+					, subject: 'Wigslace - Recover your account.'
+					, attachment: [{
+							data:'<html><p>If you did not request this password reset, please ignore this email, the link will expire in 12 hours.</p><p>To reset your wigslace password, please visit the following link: <a href="'+link+'">'+link+'</a></p></html>'
+						, alternative: true
+						}]
+					}, function(err, message) {
+						if (err) { return done(err, false); }
+						return done(null, true);
+					});
+				}); 
+			});
+		}
+
+		// Return the user id of the given recovery token
+	, recoverToID: function(token, done) {
+			client.get('users:recover:'+token, done);
+		}
+
+	, deleteRecover: function(token) {
+			client.del('users:recover:'+token);
+		}
+
+	, changePassword: function(id, password, done) {
+			bcrypt.hash(password, 5, function(err, hash) {
+				if (err) { return done(err); }
+				client.set('users:hash:'+id, hash, done);
 			});
 		}
 

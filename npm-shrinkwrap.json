@@ -387,6 +387,11 @@
         }
       }
     },
+    "randomstring": {
+      "version": "1.0.2",
+      "from": "randomstring@1.0.2",
+      "resolved": "https://registry.npmjs.org/randomstring/-/randomstring-1.0.2.tgz"
+    },
     "redis": {
       "version": "0.8.3",
       "from": "redis@0.8.3",

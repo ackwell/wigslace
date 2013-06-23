@@ -98,6 +98,7 @@ function getContext(req) {
 	return {
 		pageURL: host + req.url
 	, errors: req.flash('error')
+	, info: req.flash('info')
 	, user: req.user
 	};
 }
@@ -123,7 +124,7 @@ app.get('/chat', function(req, res) {
 // User management
 app.get('/register', function(req, res) { res.render('register.html', getContext(req)); });
 app.post('/register', function(req, res) {
-	var post = req.body
+	var post = req.body;
 	// Make sure the email is valid
 	try { validator.check(post.email).isEmail(); }
 	catch (e) {
@@ -156,7 +157,68 @@ app.post('/register', function(req, res) {
 	});
 });
 
-// NOTE: SHOULD PROBABLY VALIDATE EMAIL FOR /recover AS WELL
+app.get('/recover', function(req, res) { res.render('recover.html', getContext(req)); });
+app.post('/recover', function(req, res) {
+	var url = req.protocol + '://' + req.get('host') + '/recover/';
+
+	// Make sure the email is valid
+	try { validator.check(req.body.email).isEmail(); }
+	catch (e) {
+		req.flash('error', e.message);
+		res.redirect('/recover');
+		return;
+	}
+
+	Users.recover(req.body.email, url, function(err, success, message) {
+		if (!success) {
+			req.flash('error', message);
+			res.redirect('/recover');
+		} else {
+			req.flash('info', 'A recovery email has been dispatched.');
+			res.redirect('/login');
+		}
+	});
+});
+
+app.get('/recover/:token', function(req, res) {
+	Users.recoverToID(req.params.token, function(err, id) {
+		if (!id) {
+			req.flash('error', 'Invalid recovery token.');
+			res.redirect('/recover');
+		} else {
+			var context = getContext(req);
+			context.needsPassword = false;
+			res.render('reset-password.html', context);
+		}
+	});
+});
+app.post('/recover/:token', function(req, res) {
+	var token = req.params.token;
+	Users.recoverToID(token, function(err, id) {
+		if (!id) {
+			req.flash('error', 'Invalid recovery token.');
+			res.redirect('/recover');
+		} else {
+			// Make sure the password & confirm match
+			if (req.body.password != req.body.password_confirm) {
+				req.flash('error', 'The passwords do not match.');
+				res.redirect('/recover/'+token);
+				return;
+			}
+
+			Users.changePassword(id, req.body.password, function(err, success) {
+				if (success) {
+					Users.deleteRecover(token);
+					req.flash('info', 'Password changed successfully.');
+					res.redirect('/login');
+				} else {
+					req.flash('error', 'Something went wrong.');
+					res.redirect('/recover/'+token);
+				}
+			});
+		}
+	});
+});
 
 app.get('/login', function(req, res) { res.render('login.html', getContext(req)); });
 app.post('/login', passport.authenticate('local', {
