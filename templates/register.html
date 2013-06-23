@@ -1,11 +1,39 @@
 {% extends 'layout.html' %}
 
-{% block body %}
-	<form action="{{ pageURL }}" method="post">
-		<input type="text" name="username"/>
-		<input type="text" name="email"/>
-		<input type="text" name="password"/>
-		<input type="text" name="password_confirm"/>
-		<input type="submit"/>
+{% block pageHeader %}
+Register <small>Oh hey! A new user!</small>
+{% endblock %}
+
+{% block content %}
+	<form class="form-horizontal" action="{{ pageURL }}" method="post">
+		<div class="control-group">
+			<label class="control-label" for="username">Username</label>
+			<div class="controls">
+				<input type="text" name="username" id="username"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="email">Email</label>
+			<div class="controls">
+				<input type="email" name="email" id="email"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="password">Password</label>
+			<div class="controls">
+				<input type="password" name="password" id="password"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label" for="password_confirm">Confirm Password</label>
+			<div class="controls">
+				<input type="password" name="password_confirm" id="password_confirm"/>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<button type="submit" class="btn">Register</button>
+			</div>
+		</div>
 	</form>
 {% endblock %}

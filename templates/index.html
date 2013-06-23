@@ -1,8 +1,10 @@
 {% extends 'layout.html' %}
 
-{% block body %}
-	<h1>Homepage</h1>
-	<p>Note to self: Users, if logged in, should be redirected to chat page</p>
-	<p><a href="/login">Click here to log in</a></p>
-	<p>Don't have an account? <a href="/register">Click here to register</a></p>
+{% block pageHeader %}
+Wigslace v7 <small>Whoever said the community was dead is a moron.</small>
+{% endblock %}
+
+{% block content %}
+<p>For now, we chat. Perhaps one day something big will happen, and this page will be used for something interesting.</p>
+<p>The login and register buttons are up the top.</p>
 {% endblock %}

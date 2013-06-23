@@ -16,24 +16,57 @@
 	{% endblock %}
 </head>
 <body>
-		<div class="navbar navbar-static-top">
-			<div class="navbar-inner">
-				<a class="brand" href="/">Wigslace</a>
-			</div>
+	{# Nav bar #}
+	<div class="navbar navbar-static-top">
+		<div class="navbar-inner">
+			<a class="brand" href="/">Wigslace</a>
+			<ul class="nav pull-right">
+				{% if !user %}
+				<li><a href="/login">Login</a></li>
+				<li><a href="/register">Register</a></li>
+				{% endif %}
+			</ul>
 		</div>
+	</div>
+
+	{# Main body #}
+	{% block body %}
+	<div class="container">
+		<div class="page-header">
+			<h1>{% block pageHeader %}{% endblock %}</h1>
+		</div>
+
+		{# Alerts #}
+		{% for error in errors %}
+			<div class="alert alert-error">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				<strong>Error!</strong> {{ error }}
+			</div>
+		{% endfor %}
+		{% for message in info %}
+			<div class="alert alert-info">
+				<button type="button" class="close" data-dismiss="alert">&times;</button>
+				{{ message }}
+			</div>
+		{% endfor %}
+
+		{% block content %}
+		{% endblock %}
+	</div>
+	{% endblock %}
+</body>
+</html>
+
+{#
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div class="span10">
-				{% block body %}
+				{% block content %}
 				{% endblock %}
 			</div>
 			<div class="span2"></div>
 		</div>
 	</div>
-</body>
-</html>
-
-{#
 {% if errors %}
 	{% for error in errors %}
 		{{ error }}
