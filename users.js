@@ -1,6 +1,26 @@
 // Requires
 var bcrypt = require('bcrypt');
 
+/*
+ * Email services
+ */
+var email = require('emailjs')
+	, smtp = email.server.connect({
+			user: 'wigslace@ackwell.com.au'
+		, password: process.env.EMAIL_PASSWORD
+		, host: 'smtp.gmail.com'
+		, ssl: true
+		});
+
+/*
+smtp.send({
+	text: 'This is a system test'
+, from: 'Wigslace <wigslace@ackwell.com.au>'
+, to: 'ackwell <saxon@ackwell.com.au>'
+, subject: 'Testing Wigslace emailjs'
+}, function(err, message) { console.log(err || message); })
+*/
+
 // Need reference to the database object
 module.exports = function(client) {
 	// Users model
@@ -22,13 +42,27 @@ module.exports = function(client) {
 						client.multi()
 							.sadd('users:ids', username)
 							.sadd('users:emails', email)
+							.set('users:email:'+email, username)
 							.set('users:hash:'+username, hash)
+							.hmset('users:data:'+username, {
+								'id': username
+							, 'email': email
+							})
 							.exec(function(err, replies) {
 								if (err) { return done(err); }
 								return done(null, true)
 							});
 					});
 				});
+		}
+
+	, recover: function(email, done) {
+			// Make sure the email is valid
+			client.sismember('users:emails', email, function(err, exists) {
+				if (!exists) { return done(null, false, "No user with that email."); }
+				// email is valid - get their ID from the user:email:(address) store,
+				// reset the password to something random, and send them an email
+			});
 		}
 
 		// Check if the ID passed in is a valid user
@@ -39,8 +73,6 @@ module.exports = function(client) {
 		// Return all the data related to a user
 	, get: function(id, done) {
 			client.hgetall('users:data:'+id, function(err, user) {
-				if (!user) { user = {}; }
-				user.id = id;
 				return done(err, user);
 			});
 		}

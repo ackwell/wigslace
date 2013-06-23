@@ -1,6 +1,3 @@
-Database model
 more events - connect, ready, etc. show 'connecting' message
 Ignore blank input - probably both server and client
-nickname reservation - login?
-move sessions/etc into a database of some sorts
 make shit look pretty

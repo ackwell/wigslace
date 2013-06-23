@@ -14,15 +14,12 @@ p {display: inline-block;}
 {% endblock %}
 
 {% block body %}
-	{% if !loggedIn %}<a href="/login">Login</a>{% endif %}
 	<div id="chat">
 		<div class="messages">
 		</div>
-		{% if loggedIn %}
-			<form action="javascript:void(0);" class="message-input">
-				<input type="text" name="message"/>
-				<input type="submit"/>
-			</form>
-		{% endif %}
+		<form action="javascript:void(0);" class="message-input">
+			<input type="text" name="message"/>
+			<input type="submit"/>
+		</form>
 	</div>
 {% endblock %}
