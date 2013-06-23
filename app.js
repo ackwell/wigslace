@@ -104,24 +104,18 @@ function getContext(req) {
 
 // Index page
 app.get('/', function(req, res) {
-	console.log(req.user);
-	var data = getContext(req);
-	res.render('index.html', data);
+	if (req.user) {
+		res.redirect('/chat');
+		return;
+	}
+	res.render('index.html', getContext(req));
 });
 
 // Chat page
-app.get('/chat', function(req, res) {
-	var data = getContext(req);
-	data.loggedIn = req.session.username != null;
-
-	res.render('chat.html', data);
-});
+app.get('/chat', function(req, res) { res.render('chat.html', getContext(req)); });
 
 // User management
-app.get('/register', function(req, res) {
-	var data = getContext(req);
-	res.render('register.html', data);
-});
+app.get('/register', function(req, res) { res.render('register.html', getContext(req)); });
 app.post('/register', function(req, res) {
 	var post = req.body
 	// Make sure the password & confirm match
@@ -148,24 +142,7 @@ app.post('/register', function(req, res) {
 	});
 });
 
-app.get('/login', function(req, res) {
-	var data = getContext(req);
-
-	// If already logged in, redirect to (edit)? profile page (once i have users lol)
-
-	// If there is username postdata, save it to the session and redirect
-	// if (req.body.username != null) {
-	// 	req.session.username = req.body.username;
-	// 	var url = '/';
-
-	// 	if (req.query.redirect != null) {
-	// 		var url = req.query.redirect;
-	// 	}
-	// 	res.redirect(url);
-	// }
-
-	res.render('login.html', data);
-});
+app.get('/login', function(req, res) { res.render('login.html', getContext(req)); });
 app.post('/login', passport.authenticate('local', {
 	successRedirect: '/'
 , failureRedirect: '/login'
@@ -181,7 +158,9 @@ app.get('/logout', function(req, res) {
  * Socket.io
  */
 var socketio = require('socket.io')
+	, passio = require('passport.socketio')
 	, io = socketio.listen(server);
+
 // Config
 io.set('log level', 2);
 io.configure('production', function() {
@@ -192,29 +171,12 @@ io.configure('production', function() {
 });
 
 // Set up socket authorisation and session sharing
-io.set('authorization', function(handshakeData, callback) {
-	if (handshakeData.headers.cookie) {
-		var cookie = require('cookie').parse(decodeURIComponent(handshakeData.headers.cookie));
-		cookie = connect.utils.parseSignedCookies(cookie, app.get('secretKey'));
-		var sessionID = cookie[app.get('cookieSessionKey')];
-
-		sessionStore.get(sessionID, function(err, session) {
-			if (err) { callback(err.message, false); }
-			else if (!session) { callback('Session not found.', false); }
-			else {
-				handshakeData.cookie = cookie;
-				handshakeData.sessionID = sessionID;
-				handshakeData.sessionStore = sessionStore;
-				handshakeData.session = new express.session.Session(handshakeData, session);
-
-				callback(null, true);
-			}
-		});
-	}
-	else {
-		callback('Cookie not found.', false);
-	}
-});
+io.set('authorization', passio.authorize({
+	cookieParser: express.cookieParser
+, key: app.get('cookieSessionKey')
+, secret: app.get('secretKey')
+, store: sessionStore
+}));
 
 // Socket stuff
 io.sockets.on('connection', function(socket) {
@@ -225,23 +187,10 @@ io.sockets.on('connection', function(socket) {
 	socket.on('message', function(message) {
 		// sanitise
 		message = sanitise(message).escape();
-		
-		// socket.handshake.lol += 1;
-		// socket.handshake.foo = 'hello'
-		//console.log(socket.handshake.lol, socket.handshake.foo);
 
 		// broadcast
-		io.sockets.emit('broadcast', {username: socket.handshake.session.username, message: message});
-	});
-
-	// keep the session alive
-	var sessionReloadIntervalID = setInterval(function() {
-		socket.handshake.session.reload(function() {
-			socket.handshake.session.touch().save();
-		});
-	}, 60 * 2 * 1000);
-	socket.on('disconnect', function(message) {
-		clearInterval(sessionReloadIntervalID);
+		console.log(socket.handshake.user);
+		io.sockets.emit('broadcast', {user: socket.handshake.user, message: message});
 	});
 });
 

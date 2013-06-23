@@ -10,8 +10,8 @@ $(function() {
 
 	// Server has established a connection, ready to go!
 	socket.on('ready', function() {
-			// temp for testing
-	socket.emit('message', 'i have connected (need to move this to client side)');
+		// temp for testing
+		socket.emit('message', 'i have connected (need to move this to client side)');
 	});
 
 	// If we recieve a message line, add it to the view
@@ -23,7 +23,7 @@ $(function() {
 		console.log(message)
 
 		$('#chat .messages').append(
-			'<div><strong>'+data.username+':&nbsp;</strong>'+message+'</div>'
+			'<div><strong>'+data.user.id+':&nbsp;</strong>'+message+'</div>'
 		);
 	});
 
