@@ -13,6 +13,11 @@
 	{% endblock %}
 </head>
 <body>
+	{% if errors %}
+		{% for error in errors %}
+			{{ error }}
+		{% endfor %}
+	{% endif %}
 	{% block body %}
 	{% endblock %}
 </body>
