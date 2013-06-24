@@ -122,7 +122,7 @@ app.get('/register', function(req, res) {
 });
 app.post('/register', function(req, res) {
 	var post = req.body;
-	// Make sure the fields is valid
+	// Make sure the fields are valid
 	try {
 		validator.check(post.username, 'Please enter a username.').notEmpty();
 		validator.check(post.email, 'Please enter a valid email address.').isEmail();

@@ -22,8 +22,10 @@
 			<a class="brand" href="/">Wigslace</a>
 			<ul class="nav pull-right">
 				{% if !user %}
-				<li><a href="/login">Login</a></li>
-				<li><a href="/register">Register</a></li>
+					<li><a href="/login">Login</a></li>
+					<li><a href="/register">Register</a></li>
+				{% else %}
+					<li><a href="/logout">Logout</a></li>
 				{% endif %}
 			</ul>
 		</div>
