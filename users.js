@@ -13,113 +13,134 @@ var email = require('emailjs')
 		, ssl: true
 		});
 
-/*
-smtp.send({
-	text: 'This is a system test'
-, from: 'Wigslace <wigslace@ackwell.com.au>'
-, to: 'ackwell <saxon@ackwell.com.au>'
-, subject: 'Testing Wigslace emailjs'
-}, function(err, message) { console.log(err || message); })
-*/
-
 // Need reference to the database object
-module.exports = function(client) {
-	// Users model
-	var Users = {
-		// Register a new user
-		register: function(username, email, password, done) {
-			// Make sure the user doesn't exist already
-			client.multi()
-				.sismember('users:ids', username)
-				.sismember('users:emails', email)
-				.exec(function(err, replies) {
-					if (err) { return done(err); }
-					if (replies[0]) { return done(null, false, "That username is already taken."); }
-					if (replies[1]) { return done(null, false, "That email has already been used."); }
-					// Create a password hash
-					bcrypt.hash(password, 5, function(err, hash) {
-						if (err) { return done(err); }
-						// Save the user to the database
-						client.multi()
-							.sadd('users:ids', username)
-							.sadd('users:emails', email)
-							.set('users:email:'+email, username)
-							.set('users:hash:'+username, hash)
-							.hmset('users:data:'+username, {
-								'id': username
-							, 'email': email
-							})
-							.exec(function(err, replies) {
-								if (err) { return done(err); }
-								return done(null, true)
-							});
-					});
-				});
-		}
+module.exports = function(db) {
+	// User account schema
+	var userSchema = db.Schema({
+		id: String
+	, email: String
+	, hash: String
+	});
 
-	, recover: function(email, returnURL, done) {
-			// Grab the email
-			client.get('users:email:'+email, function(err, username) {
-				// If the email isn't used, chuck a hissy
-				if (!username) { return done(null, false, "No user with that email."); }
-				// Generate a random string to serve their recover page with
-				var token = randomstring.generate();
-				// Expires after 12 hours
-				client.setex('users:recover:'+token, 43200, username, function(err, success) {
-					// Woo more comments. Send them their recovery email
-					var link = returnURL + token;
-					smtp.send({
-						text: 'If you did not request this password reset, please ignore this email, the link will expire in 12 hours. To reset your wigslace password, please visit the following link: '+link
-					, from: 'Wigslace <wigslace@ackwell.com.au>'
-					, to: username+' <'+email+'>'
-					, subject: 'Wigslace - Recover your account.'
-					, attachment: [{
-							data:'<html><p>If you did not request this password reset, please ignore this email, the link will expire in 12 hours.</p><p>To reset your wigslace password, please visit the following link: <a href="'+link+'">'+link+'</a></p></html>'
-						, alternative: true
-						}]
-					}, function(err, message) {
-						if (err) { return done(err, false); }
-						return done(null, true);
-					});
-				}); 
-			});
-		}
+	// Recovery key schema
+	recoverySchema = db.Schema({
+		id: String
+	, token: String
+	, created: {type: Date, expires: '12h'}
+	});
+	var Recovery = db.model('Recovery', recoverySchema)
 
-		// Return the user id of the given recovery token
-	, recoverToID: function(token, done) {
-			client.get('users:recover:'+token, done);
-		}
-
-	, deleteRecover: function(token) {
-			client.del('users:recover:'+token);
-		}
-
-	, changePassword: function(id, password, done) {
+	// Register a new user
+	userSchema.statics.register = function(username, email, password, done) {
+		var model = db.model('User');
+		// Search for users with the same id/email
+		model.findOne({$or: [{id: username}, {email: email}]}, function(err, user) {
+			if (err) { return done(err); }
+			// If the user exists, chuck a hissy
+			if (user) {
+				if (user.id == username) { return done(null, false, "That username is already taken."); }
+				else if (user.email == email) { return done(null, false, "That email has already been used."); }
+			}
+			// Create a password hash
 			bcrypt.hash(password, 5, function(err, hash) {
 				if (err) { return done(err); }
-				client.set('users:hash:'+id, hash, done);
+				// Create a new user and save it to the db
+				var newUser = new model({
+					id: username
+				, email: email
+				, hash: hash
+				});
+				newUser.save(function(err, newUser) {
+					if (err) { return done(err); }
+					return done(null, true);
+				});
 			});
-		}
+		});
+	}
 
-		// Check if the ID passed in is a valid user
-	, is: function(id, done) {
-			client.sismember('users:ids', id, done);
-		}
-
-		// Return all the data related to a user
-	, get: function(id, done) {
-			client.hgetall('users:data:'+id, function(err, user) {
-				return done(err, user);
+	// Password recovery stuff
+	userSchema.statics.recover = function(email, returnURL, done) {
+		var model = db.model('User');
+		// Get user with specified email, if none exists, chuck a hissy
+		model.findOne({email: email}, function(err, user) {
+			if (err) { return done(err); }
+			if (!user) { return done(null, false, "No user with that email."); }
+			// Generate a random string to serve the recovery page with
+			var token = randomstring.generate();
+			var newRecovery = new Recovery({
+				id: user.id
+			, token: token
+			, created: new Date
 			});
-		}
-
-		// Validate a user's password
-	, validate: function(id, password, done) {
-			client.get('users:hash:'+id, function(err, hash) {
-				bcrypt.compare(password, hash, done);
+			newRecovery.save(function(err, newRecovery) {
+				if (err) { return done(err); }
+				var link = returnURL + token;
+				smtp.send({
+					text: 'If you did not request this password reset, please ignore this email, the link will expire in 12 hours. To reset your wigslace password, please visit the following link: '+link
+				, from: 'Wigslace <wigslace@ackwell.com.au>'
+				, to: user.id+' <'+email+'>'
+				, subject: 'Wigslace - Recover your account.'
+				, attachment: [{
+						data:'<html><p>If you did not request this password reset, please ignore this email, the link will expire in 12 hours.</p><p>To reset your wigslace password, please visit the following link: <a href="'+link+'">'+link+'</a></p></html>'
+					, alternative: true
+					}]
+				}, function(err, message) {
+					if (err) { return done(err); }
+					return done(null, true);
+				});
 			});
-		}
-	};
+		});
+	}
 
-	return Users;
+	// Return the user id of the given recovery token
+	userSchema.statics.recoverToID = function(token, done) {
+		Recovery.findOne({token: token}, function(err, recovery) {
+			if (err) { return done(err); }
+			if (!recovery) { return done(null, false); }
+			return done(null, recovery.id);
+		});
+	}
+
+	userSchema.statics.deleteRecovery = function(token) {
+		Recovery.findOneAndRemove({token: token}).exec();
+	}
+
+	userSchema.statics.changePassword = function(id, password, done) {
+		var model = db.model('User');
+		bcrypt.hash(password, 5, function(err, hash) {
+			if (err) { return done(err); }
+			model.findOneAndUpdate({id: id}, {hash: hash}, done);
+		})
+	}
+
+	// Used for Passport.js LocalStrategy implementation
+	userSchema.statics.strategy = function(username, password, done) {
+		var model = db.model('User');
+		model.findOne({id: username}).lean().exec(function(err, user) {
+			if (err) { return done(err); }
+			if (!user) { return done(null, false, {message: 'That user does not exist.'}); }
+			bcrypt.compare(password, user.hash, function(err, correct) {
+				if (correct) { model._getUser(user, done); }
+				else { return done(null, false, {message: 'Incorrect password.'}); }
+			});
+		});
+	}
+
+	// Return data related to a user
+	userSchema.statics.get = function(id, done) {
+		var model = db.model('User');
+		model.findOne({id: id}).lean().exec(function(err, user) {
+			if (err) { return done(err); }
+			model._getUser(user, done);
+		});
+	}
+
+	// Given a JS object of a user, callback with the user object expected.
+	userSchema.statics._getUser = function(user, done) {
+		// Currently just using this to get rid of the hash attribute
+		delete user.hash;
+		return done(null, user);
+	}
+
+	return db.model('User', userSchema);
 }

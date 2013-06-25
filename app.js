@@ -2,7 +2,8 @@
 var connect = require('connect')
 	, express = require('express')
 	, http = require('http')
-	, redis = require('redis')
+//, redis = require('redis')
+	, db = require('mongoose')
 
 	, validator = require('validator');
 
@@ -10,13 +11,11 @@ var connect = require('connect')
 var app = express()
 	, server = http.createServer(app);
 
-// Set up production database if this is running live
 if (app.get('env') == 'production') {
-	var dbCreds = JSON.parse(process.env.VCAP_SERVICES)['redis-2.2'][0]['credentials'];
-	var db = redis.createClient(dbCreds['port'], dbCreds['host']);
-	db.auth(dbCreds['password']);
+	var url = JSON.parse(process.env.VCAP_SERVICES)['mongodb-1.8'][0]['credentials']['url'];
+	db.connect(url);
 } else {
-	var db = redis.createClient();
+	db.connect('mongodb://localhost/test');
 }
 
 /*
@@ -37,8 +36,8 @@ app.set('views', __dirname + '/templates/');
 /*
  * Sessions, etc
  */
-var RedisStore = require('connect-redis')(express)
-	, sessionStore = new RedisStore({client:db})
+var MongoStore = require('connect-mongo')(express)
+	, sessionStore = new MongoStore({mongoose_connection: db.connections[0]})
 	, flash = require('connect-flash');
 
 app.set('secretKey', process.env.SESSION_SECRET || 'Development secret key.');
@@ -66,18 +65,7 @@ passport.deserializeUser(function(id, done) {
 	Users.get(id, done);
 });
 
-passport.use(new LocalStrategy(
-	function(username, password, done) {
-		Users.is(username, function(err, isUser) {
-			if (err) { return done(err); }
-			if (!isUser) { return done(null, false, {message: 'That user does not exist.'}); }
-			Users.validate(username, password, function(err, correct) {
-				if (correct) { Users.get(username, done); }
-				else { return done(null, false, {message: 'Incorrect password.'}); }
-			});
-		});
-	}
-));
+passport.use(new LocalStrategy(Users.strategy));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -207,7 +195,7 @@ app.post('/recover/:token', function(req, res) {
 
 			Users.changePassword(id, req.body.password, function(err, success) {
 				if (success) {
-					Users.deleteRecover(token);
+					Users.deleteRecovery(token);
 					req.flash('info', 'Password changed successfully.');
 					res.redirect('/login');
 				} else {
