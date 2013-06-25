@@ -74,7 +74,7 @@ app.use(passport.session());
 Users.get('admin', function(err, user) {
 	if (!user) {
 		console.log('No administrator found, generating account.');
-		Users.register('admin', 'admin@wigslace', process.env.ADMIN_PASS || 'devadminpass', function(err, success, message) {
+		Users.register('admin', 'admin@wigslace', process.env.ADMIN_PASSWORD || 'devadminpass', function(err, success, message) {
 			if (!err && success) { console.log('Admin generated sucessfully'); }
 		});
 	}
