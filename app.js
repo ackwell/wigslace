@@ -70,6 +70,16 @@ passport.use(new LocalStrategy(Users.strategy));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Set up an administrator account
+Users.get('admin', function(err, user) {
+	if (!user) {
+		console.log('No administrator found, generating account.');
+		Users.register('admin', 'admin@wigslace', process.env.ADMIN_PASS || 'devadminpass', function(err, success, message) {
+			if (!err && success) { console.log('Admin generated sucessfully'); }
+		});
+	}
+});
+
 /*
  * Other middleware and handlers
  */

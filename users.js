@@ -138,7 +138,9 @@ module.exports = function(db) {
 	// Given a JS object of a user, callback with the user object expected.
 	userSchema.statics._getUser = function(user, done) {
 		// Currently just using this to get rid of the hash attribute
-		delete user.hash;
+		if (user) {
+			delete user.hash;
+		}
 		return done(null, user);
 	}
 
