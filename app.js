@@ -132,7 +132,7 @@ app.post('/edit', function(req, res) {
 		valid = false;
 	}
 
-	// If it's valid, resize, move into place, save to db
+	// If it's valid, resize, move into place, save to user object
 	if (valid) {
 		var path = '/uploads/avatars/'+req.user.id+'.png';
 		gm(avatar.path)
@@ -144,7 +144,11 @@ app.post('/edit', function(req, res) {
 					return;
 				}
 			});
+		req.user.avatar = path;
 	}
+
+	// Save the (possibly) edited user object back to the db
+	Users.edit(req.user);
 });
 
 // User management

@@ -20,6 +20,7 @@ module.exports = function(db) {
 		id: String
 	, email: String
 	, hash: String
+	, avatar: String
 	});
 
 	// Recovery key schema
@@ -113,6 +114,18 @@ module.exports = function(db) {
 		})
 	}
 
+	userSchema.statics.edit = function(user) {
+		var model = db.model('User')
+			, id = user.id;
+		delete user.id;
+		delete user.hash; // in case it ended up in there by mistake
+
+		model.findOneAndUpdate({id: id}, user, function(err) {
+			// probably should start logging somehwere...
+			if (err) console.log(err);
+		});
+	}
+
 	// Used for Passport.js LocalStrategy implementation
 	userSchema.statics.strategy = function(username, password, done) {
 		var model = db.model('User');
@@ -137,9 +150,11 @@ module.exports = function(db) {
 
 	// Given a JS object of a user, callback with the user object expected.
 	userSchema.statics._getUser = function(user, done) {
-		// Currently just using this to get rid of the hash attribute
+		// Currently just using this to get rid of the hash attribute and mongo stuff
 		if (user) {
 			delete user.hash;
+			delete user._id;
+			delete user.__v;
 		}
 		return done(null, user);
 	}
