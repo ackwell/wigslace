@@ -6,13 +6,16 @@
 
 	{% block headCSS %}
 		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/jasny-bootstrap.min.css" rel="stylesheet">
 		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
+		<link href="/css/jasny-bootstrap-responsive.min.css" rel="stylesheet">
 	{% endblock %}
 
 	{% block headJS %}
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 		<script>!window.jQuery && document.write('<script src="/js/jquery.min.js"><\/script>');</script>
 		<script src="/js/bootstrap.min.js"></script>
+		<script src="/js/jasny-bootstrap.min.js"></script>
 	{% endblock %}
 </head>
 <body>
@@ -25,6 +28,7 @@
 					<li><a href="/login">Login</a></li>
 					<li><a href="/register">Register</a></li>
 				{% else %}
+					<li><a href="/edit">Edit Profile</a></li>
 					<li><a href="/logout">Logout</a></li>
 				{% endif %}
 			</ul>

@@ -4,8 +4,8 @@ var config = require('./config')
 	, express = require('express')
 	, http = require('http')
 	, db = require('mongoose')
-
-	, validator = require('validator');
+	, validator = require('validator')
+	, gm = require('gm');
 
 // Set up the server, app, and other bits and pieces
 var app = express()
@@ -108,6 +108,43 @@ app.get('/', function(req, res) {
 app.get('/chat', function(req, res) {
 	if (!req.user) { res.redirect('/'); }
 	else { res.render('chat.html', getContext(req)); }
+});
+
+// Profile edit
+app.get('/edit', function(req, res) {
+	if (!req.user) { res.redirect('/'); }
+	else { res.render('edit.html', getContext(req)); }
+});
+app.post('/edit', function(req, res) {
+	var avatar = req.files.avatar
+		, valid = true;
+
+	// Make sure it's an image
+	try { validator.check(avatar.type, 'File uploaded was not an image.'); }
+	catch (e) {
+		req.flash('error', e.message);
+		valid = false;
+	}
+
+	// Limit file size to 4mb (pretty generous really)
+	if (avatar.size/1024/1024 > 4) {
+		req.flash('error', 'File is larger than 4mb.');
+		valid = false;
+	}
+
+	// If it's valid, resize, move into place, save to db
+	if (valid) {
+		var path = '/uploads/avatars/'+req.user.id+'.png';
+		gm(avatar.path)
+			.resize(200, 200)
+			.write(__dirname+'/static'+path, function(err) {
+				if (err) {
+					req.flash('error', 'Something went wrong.');
+					res.redirect('/edit');
+					return;
+				}
+			});
+	}
 });
 
 // User management
