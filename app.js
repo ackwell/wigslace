@@ -119,32 +119,35 @@ app.post('/edit', function(req, res) {
 	var avatar = req.files.avatar
 		, valid = true;
 
-	// Make sure it's an image
-	try { validator.check(avatar.type, 'File uploaded was not an image.'); }
-	catch (e) {
-		req.flash('error', e.message);
-		valid = false;
-	}
+	// Only process avatar if new one uploaded.
+	if (avatar.size) {
+		// Make sure it's an image
+		try { validator.check(avatar.type, 'File uploaded was not an image.'); }
+		catch (e) {
+			req.flash('error', e.message);
+			valid = false;
+		}
 
-	// Limit file size to 4mb (pretty generous really)
-	if (avatar.size/1024/1024 > 4) {
-		req.flash('error', 'File is larger than 4mb.');
-		valid = false;
-	}
+		// Limit file size to 4mb (pretty generous really)
+		if (avatar.size/1024/1024 > 4) {
+			req.flash('error', 'File is larger than 4mb.');
+			valid = false;
+		}
 
-	// If it's valid, resize, move into place, save to user object
-	if (valid) {
-		var path = '/uploads/avatars/'+req.user.id+'.png';
-		gm(avatar.path)
-			.resize(200, 200)
-			.write(__dirname+'/static'+path, function(err) {
-				if (err) {
-					req.flash('error', 'Something went wrong.');
-					res.redirect('/edit');
-					return;
-				}
-			});
-		req.user.avatar = path;
+		// If it's valid, resize, move into place, save to user object
+		if (valid) {
+			var path = '/uploads/avatars/'+req.user.id+'.png';
+			gm(avatar.path)
+				.resize(200, 200)
+				.write(__dirname+'/static'+path, function(err) {
+					if (err) {
+						req.flash('error', 'Something went wrong.');
+						res.redirect('/edit');
+						return;
+					}
+				});
+			req.user.avatar = path;
+		}
 	}
 
 	// Save the (possibly) edited user object back to the db
