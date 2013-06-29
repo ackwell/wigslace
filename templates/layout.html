@@ -58,25 +58,3 @@
 	{% endblock %}
 </body>
 </html>
-
-{#
-	<div class="container-fluid">
-		<div class="row-fluid">
-			<div class="span10">
-				{% block content %}
-				{% endblock %}
-			</div>
-			<div class="span2"></div>
-		</div>
-	</div>
-{% if errors %}
-	{% for error in errors %}
-		{{ error }}
-	{% endfor %}
-{% endif %}
-{% if info %}
-	{% for message in info %}
-		{{ message }}
-	{% endfor %}
-{% endif %}
-#}
