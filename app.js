@@ -1,8 +1,8 @@
 // Requires
-var connect = require('connect')
+var config = require('./config')
+	, connect = require('connect')
 	, express = require('express')
 	, http = require('http')
-//, redis = require('redis')
 	, db = require('mongoose')
 
 	, validator = require('validator');
@@ -11,12 +11,9 @@ var connect = require('connect')
 var app = express()
 	, server = http.createServer(app);
 
-if (app.get('env') == 'production') {
-	var url = JSON.parse(process.env.VCAP_SERVICES)['mongodb-1.8'][0]['credentials']['url'];
-	db.connect(url);
-} else {
-	db.connect('mongodb://localhost/test');
-}
+
+db.connect(config.database.url);
+
 
 /*
  * Templating engine
@@ -40,7 +37,7 @@ var MongoStore = require('connect-mongo')(express)
 	, sessionStore = new MongoStore({mongoose_connection: db.connections[0]})
 	, flash = require('connect-flash');
 
-app.set('secretKey', process.env.SESSION_SECRET || 'Development secret key.');
+app.set('secretKey', config.sessions.key);
 app.set('cookieSessionKey', 'sid');
 
 app.use(express.cookieParser(app.get('secretKey')));
@@ -74,7 +71,7 @@ app.use(passport.session());
 Users.get('admin', function(err, user) {
 	if (!user) {
 		console.log('No administrator found, generating account.');
-		Users.register('admin', 'admin@wigslace', process.env.ADMIN_PASSWORD || 'devadminpass', function(err, success, message) {
+		Users.register('admin', config.admin.email, config.admin.password, function(err, success, message) {
 			if (!err && success) { console.log('Admin generated sucessfully'); }
 		});
 	}
@@ -272,4 +269,4 @@ io.sockets.on('connection', function(socket) {
 });
 
 // Start the server
-server.listen(process.env.VCAP_APP_PORT || 8080);
+server.listen(config.server.port);
