@@ -12,7 +12,7 @@ var app = express()
 	, server = http.createServer(app);
 
 
-db.connect(config.database.url);
+db.connect(config.server.database);
 
 
 /*
@@ -26,7 +26,7 @@ app.set('view engine', 'html');
 swig.init({
 	root: __dirname + '/templates/'
 , allowErrors: true
-, cache: (app.get('env') == 'production')
+, cache: config.server.production
 });
 app.set('views', __dirname + '/templates/');
 
@@ -238,12 +238,12 @@ var socketio = require('socket.io')
 
 // Config
 io.set('log level', 2);
-io.configure('production', function() {
+if (config.server.production) {
 	io.enable('browser client minification');
 	io.enable('browser client etag');
 	io.enable('browser client gzip');
 	io.set('log level', 1);
-});
+}
 
 // Set up socket authorisation and session sharing
 io.set('authorization', passio.authorize({
