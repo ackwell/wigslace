@@ -4,8 +4,7 @@ var config = require('./config')
 	, express = require('express')
 	, http = require('http')
 	, db = require('mongoose')
-	, validator = require('validator')
-	, gm = require('gm');
+	, validator = require('validator');
 
 // Set up the server, app, and other bits and pieces
 var app = express()
@@ -121,6 +120,8 @@ app.post('/edit', function(req, res) {
 
 	// Only process avatar if new one uploaded.
 	if (avatar.size) {
+		var fs = require('fs');
+
 		// Make sure it's an image
 		try { validator.check(avatar.type, 'File uploaded was not an image.'); }
 		catch (e) {
@@ -136,22 +137,36 @@ app.post('/edit', function(req, res) {
 
 		// If it's valid, resize, move into place, save to user object
 		if (valid) {
-			var path = '/uploads/avatars/'+req.user.id+'.png';
-			gm(avatar.path)
-				.resize(200, 200)
-				.write(__dirname+'/static'+path, function(err) {
-					if (err) {
-						req.flash('error', 'Something went wrong.');
-						res.redirect('/edit');
-						return;
-					}
-				});
-			req.user.avatar = path;
+			var gm = require('gm')
+				, buf = fs.readFileSync(avatar.path)
+				, path = '/uploads/avatars/'+req.user.id+'/'
+				, sizes = [200, 20];
+
+			sizes.forEach(function(size) {
+				var localPath = __dirname+'/static'+path;
+
+				require('mkdirp').sync(localPath);
+				gm(buf, avatar.name)
+					.resize(size, size)
+					.write(localPath+size.toString()+'.png', function(err) {
+						if (err) {
+							console.log(err);
+							valid = false;
+						}
+					});
+			});
+			if (valid) {
+				req.user.avatar = path;
+				req.flash('info', 'Avatar updated.')
+			} else { req.flash('error', 'Something went wrong.'); }
 		}
 	}
+	// Delete the temp file
+	fs.unlink(avatar.path);
 
 	// Save the (possibly) edited user object back to the db
-	Users.edit(req.user);
+	if (valid) { Users.edit(req.user); }
+	res.redirect('/edit');
 });
 
 // User management

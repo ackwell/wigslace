@@ -7,12 +7,24 @@ Edit Profile <small>weaboo shit here</small>
 {% block content %}
 	<form action="{{ pageURL }}" method="post" enctype="multipart/form-data" class="form-horizontal">
 		<div class="control-group">
+			<label class="control-label">Username</label>
+			<div class="controls">
+				<span class="input-large uneditable-input">{{ user.id }}</span>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">Password</label>
+			<div class="controls">
+				<a href="#" class="btn">Change password</a>
+			</div>
+		</div>
+		<div class="control-group">
 			<label class="control-label">Avatar</label>
 			<div class="controls">
 				<div class="fileupload fileupload-new" data-provides="fileupload">
 					<div class="fileupload-new thumbnail" style="width: 200px; height: 200px;">
 						{% if user.avatar %}
-							<img src="{{ user.avatar }}"/>
+							<img src="{{ user.avatar }}200.png"/>
 						{% endif %}
 					</div>
 					<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 200px; line-height: 20px;"></div>

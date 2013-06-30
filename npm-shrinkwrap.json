@@ -214,6 +214,10 @@
         }
       }
     },
+    "mkdirp": {
+      "version": "0.3.5",
+      "from": "mkdirp@latest"
+    },
     "mongoose": {
       "version": "3.6.13",
       "from": "mongoose@latest",

@@ -15,6 +15,7 @@
 	, "emailjs": "latest"
 	, "express": "latest"
 	, "gm": "latest"
+	, "mkdirp": "latest"
 	, "mongoose": "latest"
 	, "passport": "latest"
 	, "passport-local": "latest"
