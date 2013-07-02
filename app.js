@@ -90,7 +90,8 @@ function getContext(req) {
 	var host = req.protocol + '://' + req.get('host');
 
 	return {
-		pageURL: host + req.url
+		siteURL: host
+	, pageURL: host + req.url
 	, errors: req.flash('error')
 	, info: req.flash('info')
 	, user: req.user
@@ -115,15 +116,15 @@ app.get('/edit', function(req, res) {
 	else { res.render('edit.html', getContext(req)); }
 });
 app.post('/edit', function(req, res) {
-	var avatar = req.files.avatar
+	var fs = require('fs')
+		, avatar = req.files.avatar
 		, valid = true;
 
 	// Only process avatar if new one uploaded.
 	if (avatar.size) {
-		var fs = require('fs');
 
 		// Make sure it's an image
-		try { validator.check(avatar.type, 'File uploaded was not an image.'); }
+		try { validator.check(avatar.type, 'File uploaded was not an image.').contains('image'); }
 		catch (e) {
 			req.flash('error', e.message);
 			valid = false;
@@ -155,6 +156,7 @@ app.post('/edit', function(req, res) {
 						}
 					});
 			});
+
 			if (valid) {
 				req.user.avatar = path;
 				req.flash('info', 'Avatar updated.')
@@ -167,6 +169,30 @@ app.post('/edit', function(req, res) {
 	// Save the (possibly) edited user object back to the db
 	if (valid) { Users.edit(req.user); }
 	res.redirect('/edit');
+});
+
+app.post('/change-password', function(req, res) {
+	if (!req.user) { return res.send({type: 'error', message: 'You are not logged in.'}); }
+	var post = req.body;
+
+	// Validate passwords
+	try {
+		validator.check(post.password, 'Please ensure your password is at least 6 characters long.').len(6);
+		validator.check(post.password, 'Please enter the same password twice.').equals(post.password_confirm);
+	}
+	catch (e) {
+		return res.send({type: 'error', message: e.message});
+	}
+
+	Users.checkPassword(req.user.id, post.password_original, function(err, correct) {
+		if (err) { return res.send({type: 'error', message: 'Something went wrong checking your password.'}); }
+		if (!correct) { return res.send({type: 'error', message: 'Your old password is incorrect.'}); }
+		// All the checks have passed, we can finally change their password
+		Users.changePassword(req.user.id, post.password, function(err) {
+			if (err) { return res.send({type: 'error', message: 'Something went wrong saving your new password.'}); }
+			res.send({type: 'success', message: 'New password set.'});
+		});
+	})
 });
 
 // User management
@@ -239,7 +265,6 @@ app.get('/recover/:token', function(req, res) {
 			res.redirect('/recover');
 		} else {
 			var context = getContext(req);
-			context.needsPassword = false;
 			res.render('reset-password.html', context);
 		}
 	});

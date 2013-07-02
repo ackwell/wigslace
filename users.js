@@ -129,34 +129,36 @@ module.exports = function(db) {
 	// Used for Passport.js LocalStrategy implementation
 	userSchema.statics.strategy = function(username, password, done) {
 		var model = db.model('User');
-		model.findOne({id: username}).lean().exec(function(err, user) {
-			if (err) { return done(err); }
-			if (!user) { return done(null, false, {message: 'That user does not exist.'}); }
-			bcrypt.compare(password, user.hash, function(err, correct) {
-				if (correct) { model._getUser(user, done); }
-				else { return done(null, false, {message: 'Incorrect password.'}); }
-			});
+		model.checkPassword(username, password, function(err, correct) {
+			if (correct) { model.get(username, done); }
+			else { return done(null, false, {message: 'Incorrect password.'}); }
 		});
 	}
 
-	// Return data related to a user
+	// Compare the given password to that of the speficied user
+	userSchema.statics.checkPassword = function(username, password, done) {
+		var model = db.model('User');
+		model.findOne({id: username}).lean().exec(function(err, user) {
+			if (err) { return done(err); }
+			if (!user) { return done(null, false, {message: 'That user does not exist.'}); }
+			bcrypt.compare(password, user.hash, done);
+		});
+	}
+
+	// Given ID, grab the user's data
 	userSchema.statics.get = function(id, done) {
 		var model = db.model('User');
 		model.findOne({id: id}).lean().exec(function(err, user) {
 			if (err) { return done(err); }
-			model._getUser(user, done);
-		});
-	}
 
-	// Given a JS object of a user, callback with the user object expected.
-	userSchema.statics._getUser = function(user, done) {
-		// Currently just using this to get rid of the hash attribute and mongo stuff
-		if (user) {
-			delete user.hash;
-			delete user._id;
-			delete user.__v;
-		}
-		return done(null, user);
+			// Get rid of mongo stuff
+			if (user) {
+				delete user.hash;
+				delete user._id;
+				delete user.__v;
+			}
+			return done(null, user);
+		});
 	}
 
 	return db.model('User', userSchema);

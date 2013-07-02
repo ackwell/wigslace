@@ -9,7 +9,6 @@
 		<link href="/css/jasny-bootstrap.min.css" rel="stylesheet">
 		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
 		<link href="/css/jasny-bootstrap-responsive.min.css" rel="stylesheet">
-		<link href="/css/wigslace.css" rel="stylesheet">
 	{% endblock %}
 
 	{% block headJS %}
@@ -29,7 +28,7 @@
 					<li><a href="/login">Login</a></li>
 					<li><a href="/register">Register</a></li>
 				{% else %}
-					<li><p class="navbar-text">Hello, <img src="{{ user.avatar }}20.png" class="avatar-20"/>{{ user.id }}</p></li>
+					<li><p class="navbar-text">Hello, <img src="{{ user.avatar }}20.png"/>{{ user.id }}</p></li>
 					<li><a href="/edit">Edit Profile</a></li>
 					<li><a href="/logout">Logout</a></li>
 				{% endif %}
