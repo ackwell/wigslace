@@ -1,9 +1,8 @@
 var config = {
 	server: {
 		port: 8080 // Port the app should listen on
-	}
-, database: {
-		url: 'mongodb://localhost/test'
+	, database: 'mongodb://localhost/test'
+	, production: false
 	}
 , sessions: {
 		key: 'secret key'

@@ -340,7 +340,7 @@ io.set('authorization', passio.authorize({
 // Socket stuff
 io.sockets.on('connection', function(socket) {
 	// We have a connection, tell the client as such
-	socket.emit('ready')
+	socket.emit('ready');
 	
 	// when a message is recieverd, process it, then broadcast to all clients
 	socket.on('message', function(message) {
