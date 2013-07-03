@@ -2,9 +2,7 @@
 
 {% block headCSS %}
 	{% parent %}
-	<style>
-		p {display: inline-block;}
-	</style>
+	<link href="/css/chat.css" rel="stylesheet">
 {% endblock %}
 
 {% block headJS %}
@@ -15,12 +13,14 @@
 {% endblock %}
 
 {% block body %}
-	<div id="chat">
-		<div class="messages">
+	<div id="chat-container" class="row-fluid">
+		<div class="span10 messages">
+			<div class="scroll-box"></div>
 		</div>
-		<form action="javascript:void(0);" class="message-input">
-			<input type="text" name="message" autocomplete="off"/>
-			<input type="submit"/>
-		</form>
+		<div class="span2 users"></div>
 	</div>
+	<form action="javascript:void(0);" id="message-input" class="input-append">
+	  <input type="text" name="message" autocomplete="off" class="span12">
+	  <button type="submit" class="btn">Send</button>
+	</form>
 {% endblock %}

@@ -1,0 +1,4 @@
+#chat-container {position: absolute; top: 41px; bottom: 34px;}
+#chat-container .messages {height: 100%;}
+
+#message-input {margin: 0 2px 2px; position: absolute; left: 0; right: 0; bottom: 0;}

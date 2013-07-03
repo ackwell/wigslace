@@ -339,16 +339,22 @@ io.set('authorization', passio.authorize({
 
 // Socket stuff
 io.sockets.on('connection', function(socket) {
+	var user = socket.handshake.user;
+
 	// We have a connection, tell the client as such
 	socket.emit('ready');
-	
-	// when a message is recieverd, process it, then broadcast to all clients
-	socket.on('message', function(message) {
-		// sanitise
-		message = validator.sanitize(message).escape();
+	// Tell all the other clients we've joined
+	socket.broadcast.emit('join', user);
 
-		// broadcast
-		io.sockets.emit('broadcast', {user: socket.handshake.user, message: message});
+	// when a message is received, process it, then broadcast to all clients
+	socket.on('message', function(message) {
+		message = validator.sanitize(message).escape();
+		io.sockets.emit('message', {user: user.id, message: message});
+	});
+
+	// Client has disconnected
+	socket.on('disconnect', function() {
+		socket.broadcast.emit('part', user.id);
 	});
 });
 

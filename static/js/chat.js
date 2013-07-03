@@ -4,27 +4,38 @@ $(function() {
 
 	// Server has established a connection, ready to go!
 	socket.on('ready', function() {
-		// temp for testing
-		socket.emit('message', 'i have connected (need to move this to client side)');
+		// Remove 'connecting' messsage
 	});
 
 	// If we recieve a message line, add it to the view
 	// The messages are sanitised serverside.
-	socket.on('broadcast', function(data) {
+	socket.on('message', function(data) {
 		var message = data.message;
 		// Parse it with markdown.
 		message = marked(message);
 		console.log(message)
 
-		$('#chat .messages').append(
+		$('#chat-container .scroll-box').append(
 			'<div><strong>'+data.user.id+':&nbsp;</strong>'+message+'</div>'
 		);
 	});
 
+	// A user has joiner
+	socket.on('join', function(user) {
+		$('#chat-container .users').append(
+			'<div class="user user-'+user.id+'">'+(user.avatar?'<img src="'+user.avatar+'20.png">':'')+user.id+'</div>'
+		);
+	});
+
+	// User has left
+	socket.on('part', function(userID) {
+		$('#chat-container .users .user-'+userID).remove();
+	});
+
 	// If we send a message, send it to the server
-	$('#chat .message-input').submit(function() {
-		var messagebox = $(this).find('[name="message"]');
-		socket.emit('message', messagebox.val());
-		messagebox.val('');
+	$('#message-input').submit(function() {
+		var messageBox = $(this).find('[name="message"]');
+		socket.emit('message', messageBox.val());
+		messageBox.val('');
 	})
 });
