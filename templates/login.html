@@ -1,8 +1,7 @@
 {% extends 'layout.html' %}
 
-{% block pageHeader %}
-Login <small>お帰りなさい～</small>
-{% endblock %}
+{% block pageHeader %}Login{% endblock %}
+{% block pageSubHeader %}お帰りなさい～{% endblock %}
 
 {% block content %}
 	<form action="{{ pageURL }}" method="post" class="form-horizontal">

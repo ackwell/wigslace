@@ -141,7 +141,7 @@ app.post('/edit', function(req, res) {
 			var gm = require('gm')
 				, buf = fs.readFileSync(avatar.path)
 				, path = '/uploads/avatars/'+req.user.id+'/'
-				, sizes = [200, 20];
+				, sizes = [200, 40, 20];
 
 			sizes.forEach(function(size) {
 				var localPath = __dirname+'/static'+path;

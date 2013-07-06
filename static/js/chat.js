@@ -1,6 +1,9 @@
 $(function() {
+	// Used to store information about other users
+	var users = {};
+
 	// Set up a socket.io connection
-	var socket = io.connect(window.location.origin)
+	var socket = io.connect(window.location.origin);
 
 	// Server has established a connection, ready to go!
 	socket.on('ready', function() {
@@ -13,14 +16,13 @@ $(function() {
 		var message = data.message;
 		// Parse it with markdown.
 		message = marked(message);
-		console.log(message)
 
 		$('#chat-container .scroll-box').append(
-			'<div><strong>'+data.user.id+':&nbsp;</strong>'+message+'</div>'
+			'<div><strong>'+data.user+':&nbsp;</strong>'+message+'</div>'
 		);
 	});
 
-	// A user has joiner
+	// A user has joined
 	socket.on('join', function(user) {
 		$('#chat-container .users').append(
 			'<div class="user user-'+user.id+'">'+(user.avatar?'<img src="'+user.avatar+'20.png">':'')+user.id+'</div>'

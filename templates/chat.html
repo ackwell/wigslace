@@ -13,14 +13,26 @@
 {% endblock %}
 
 {% block body %}
-	<div id="chat-container" class="row-fluid">
-		<div class="span10 messages">
-			<div class="scroll-box"></div>
+<div id="container">
+	<div class="tr">
+		<div class="tc">
+			{% include 'navbar.html' %}
 		</div>
-		<div class="span2 users"></div>
 	</div>
-	<form action="javascript:void(0);" id="message-input" class="input-append">
-	  <input type="text" name="message" autocomplete="off" class="span12">
-	  <button type="submit" class="btn">Send</button>
-	</form>
+	
+	<div class="tr">
+		<div class="tc fill">
+			
+		</div>
+	</div>
+
+	<div class="tr">
+		<div class="tc">
+			<form action="javascript:void(0);" id="message-input" class="input-append">
+				<input type="text" name="message" autocomplete="off">
+				<button type="submit" class="btn">Send</button>
+			</form>
+		</div>
+	</div>
+</div>
 {% endblock %}
