@@ -130,9 +130,14 @@ module.exports = function(db) {
 	// Used for Passport.js LocalStrategy implementation
 	userSchema.statics.strategy = function(username, password, done) {
 		var model = db.model('User');
-		model.checkPassword(username, password, function(err, correct) {
+		model.checkPassword(username, password, function(err, correct, data) {
 			if (correct) { model.get(username, done); }
-			else { return done(null, false, {message: 'Incorrect password.'}); }
+			else {
+				if (data && data.message) {
+					return done(null, false, {message: data.message});
+				}
+				return done(null, false, {message: 'Incorrect password.'});
+			}
 		});
 	}
 

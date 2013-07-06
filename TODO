@@ -1,4 +1,5 @@
-Move Redis DB to mongo :/
-more events - connect, ready, etc. show 'connecting' message
+ show 'connecting' message
 Ignore blank input - probably both server and client
 make shit look pretty
+include username in email
+throttle email sending
