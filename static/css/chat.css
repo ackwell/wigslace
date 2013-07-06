@@ -1,9 +1,14 @@
 html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;}
 
-#container {display: table; width: 100%; height: 100%;}
+.t {display: table; width: 100%; height: 100%;}
 .tr {display: table-row; border-collapse: collapse;}
-.tc {display: table-cell; width: 100%; height: 0;}
-.tc.fill {height: 100%;}
+.tc {display: table-cell; height: 100%;}
+.tc.collapse {height: 0;}
+
+.pos-fix {height: 100%; position: relative;}
+.wrapper {position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow-y: auto;}
+
+.user-list {width: 200px;}
 
 /*#chat-container {position: absolute; top: 41px; bottom: 34px;}
 #chat-container .messages {height: 100%;}

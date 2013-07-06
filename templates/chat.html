@@ -13,21 +13,33 @@
 {% endblock %}
 
 {% block body %}
-<div id="container">
+<div class="t">
 	<div class="tr">
-		<div class="tc">
+		<div class="tc collapse">
 			{% include 'navbar.html' %}
 		</div>
 	</div>
 	
 	<div class="tr">
-		<div class="tc fill">
-			
+		<div class="tc">
+			<div class="t">
+				<div class="tr">
+					<div class="tc">
+						<div class="pos-fix">
+							<div class="chat wrapper">
+								<p>test</P>
+							</div>
+						</div>
+					</div>
+
+					<div class="tc user-list"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<div class="tr">
-		<div class="tc">
+		<div class="tc collapse">
 			<form action="javascript:void(0);" id="message-input" class="input-append">
 				<input type="text" name="message" autocomplete="off">
 				<button type="submit" class="btn">Send</button>

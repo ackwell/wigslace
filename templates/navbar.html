@@ -1,7 +1,13 @@
 <div class="navbar navbar-static-top">
 	<div class="navbar-inner">
 		<a class="btn btn-navbar user-button" data-toggle="collapse" data-target=".nav-collapse">
-			{% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}{{ user.id }}
+			{% if user %}
+				{% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}{{ user.id }}
+			{% else %}
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			{% endif %}
 		</a>
 
 		<a class="brand" href="/">Wigslace</a>

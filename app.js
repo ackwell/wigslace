@@ -159,7 +159,7 @@ app.post('/edit', function(req, res) {
 
 			if (valid) {
 				req.user.avatar = path;
-				req.flash('info', 'Avatar updated.')
+				req.flash('info', 'Avatar updated. (Might take a few seconds to be visible site-wide)')
 			} else { req.flash('error', 'Something went wrong.'); }
 		}
 	}

@@ -60,6 +60,12 @@
 		<form action="{{ siteURL }}/change-password" method="post" class="form-horizontal" style="margin: 0;">
 			<div class="modal-body">
 				<div class="control-group">
+					<label class="control-label" for="password_original">Old Password</label>
+					<div class="controls">
+						<input type="password" name="password_original" id="password_original"/>
+					</div>
+				</div>
+				<div class="control-group">
 				<label class="control-label" for="password">New Password</label>
 					<div class="controls">
 						<input type="password" name="password" id="password"/>
@@ -69,12 +75,6 @@
 					<label class="control-label" for="password_confirm">Confirm New Password</label>
 					<div class="controls">
 						<input type="password" name="password_confirm" id="password_confirm"/>
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label" for="password_original">Old Password</label>
-					<div class="controls">
-						<input type="password" name="password_original" id="password_original"/>
 					</div>
 				</div>
 			</div>

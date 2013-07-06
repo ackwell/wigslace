@@ -122,7 +122,7 @@ module.exports = function(db) {
 		delete user.hash; // in case it ended up in there by mistake
 
 		model.findOneAndUpdate({id: id}, user, function(err) {
-			// probably should start logging somehwere...
+			// probably should start logging somewhere...
 			if (err) console.log(err);
 		});
 	}
