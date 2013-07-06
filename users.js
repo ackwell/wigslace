@@ -1,5 +1,6 @@
 // Requires
-var bcrypt = require('bcrypt')
+var config = require('./config')
+	, bcrypt = require('bcrypt')
 	, randomstring = require('randomstring');
 
 /*
@@ -7,9 +8,9 @@ var bcrypt = require('bcrypt')
  */
 var email = require('emailjs')
 	, smtp = email.server.connect({
-			user: 'wigslace@ackwell.com.au'
-		, password: process.env.EMAIL_PASSWORD
-		, host: 'smtp.gmail.com'
+			user: config.smtp.user
+		, password: config.smtp.password
+		, host: config.smtp.host
 		, ssl: true
 		});
 

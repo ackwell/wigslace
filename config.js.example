@@ -12,6 +12,12 @@ var config = {
 		email: 'admin@wigslace'
 	, password: 'password'
 	}
+	// Email connection details
+, smtp: {
+		host: 'smtp.example.com'
+	, user: 'someaccount'
+	, password: 'password'
+	}
 };
 
 module.exports = config;

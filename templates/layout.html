@@ -26,7 +26,10 @@
 	{# Main body #}
 	<div class="container">
 		<div class="page-header">
-			<h1>{% block pageHeader %}{% endblock %}<small>{% block pageSubHeader %}{% endblock %}</small></h1>
+			<h1>
+				{% block pageHeader %}{% endblock %}
+				<small class="hidden-phone">{% block pageSubHeader %}{% endblock %}</small>
+			</h1>
 		</div>
 
 		{# Alerts #}
