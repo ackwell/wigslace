@@ -1,9 +1,4 @@
 show 'connecting' message
-Ignore blank input - probably both server and client
-make shit look pretty
-include username in recovery email
 throttle email sending
 check size of upload clientside
-ban chars like (space) from usernames
-min/max length on usernames
 allow change email address

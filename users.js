@@ -78,12 +78,12 @@ module.exports = function(db) {
 				if (err) { return done(err); }
 				var link = returnURL + token;
 				smtp.send({
-					text: 'If you did not request this password reset, please ignore this email, the link will expire in 12 hours. To reset your wigslace password, please visit the following link: '+link
+					text: 'If you did not request this password reset, please ignore this email, the link will expire in 12 hours. To reset the password for your wigslace account "'+user.id+'", please visit the following link: '+link
 				, from: 'Wigslace <wigslace@ackwell.com.au>'
 				, to: user.id+' <'+email+'>'
-				, subject: 'Wigslace - Recover your account.'
+				, subject: 'Wigslace - Recover your account ('+user.id+').'
 				, attachment: [{
-						data:'<html><p>If you did not request this password reset, please ignore this email, the link will expire in 12 hours.</p><p>To reset your wigslace password, please visit the following link: <a href="'+link+'">'+link+'</a></p></html>'
+						data:'<html><p>If you did not request this password reset, please ignore this email, the link will expire in 12 hours.</p><p>To reset the password for your wigslace account "'+user.id+'", please visit the following link: <a href="'+link+'">'+link+'</a></p></html>'
 					, alternative: true
 					}]
 				}, function(err, message) {

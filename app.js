@@ -204,10 +204,16 @@ app.post('/register', function(req, res) {
 	var post = req.body;
 	// Make sure the fields are valid
 	try {
-		validator.check(post.username, 'Please enter a username.').notEmpty();
+		validator.check(post.username, {
+			notEmpty: 'Please enter a username.'
+		, notContains: 'Usernames may not contain a space.'
+		, len: 'Usernames must be between 5 and 25 characters'
+		}).notEmpty().notContains(' ').len(5, 25);
 		validator.check(post.email, 'Please enter a valid email address.').isEmail();
-		validator.check(post.password, 'Please ensure your password is at least 6 characters long.').len(6);
-		validator.check(post.password, 'Please enter the same password twice.').equals(post.password_confirm);
+		validator.check(post.password, {
+			len: 'Please ensure your password is at least 6 characters long.'
+		, equals: 'Please enter the same password twice.'
+		}).len(6).equals(post.password_confirm);
 	}
 	catch (e) {
 		req.flash('error', e.message);
@@ -366,6 +372,10 @@ io.sockets.on('connection', function(socket) {
 	// when a message is received, process it, then broadcast to all clients
 	socket.on('message', function(message) {
 		message = validator.sanitize(message).escape();
+		// Trim it, if it's blank, ignore
+		message = message.trim();
+		if (!message.length) { return; }
+
 		io.sockets.emit('message', {user: user.id, message: message});
 	});
 
