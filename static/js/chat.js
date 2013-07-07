@@ -79,19 +79,12 @@ $(function() {
 		// Remove 'connecting' messsage
 	});
 
-	// Server has sent us the list of users. wew.
-	socket.on('userList', function(userList) {
-		for (user in userList) {
-			UserList.add(userList[user]);
-		}
-	});
-
 	// If we recieve a message line, add it to the view
 	// The messages are sanitised serverside.
 	socket.on('message', function(data) {
 		var user = UserList.users[data.user];
 		if (!user) {
-			cosole.log('User "{0}" does not seem to be online...'.format(data.user));
+			console.log('User "{0}" does not seem to be online...'.format(data.user));
 			return;
 		}
 		Chat.add(user, data.message);

@@ -350,22 +350,17 @@ io.sockets.on('connection', function(socket) {
 	var user = socket.handshake.user;
 
 	// Add user to list of online users, tell the client it's connected
-	onlineUsers.push(user.id);
+	if (onlineUsers.indexOf(user.id) == -1) { onlineUsers.push(user.id); }
 	socket.emit('ready');
 	// Tell all the other clients the new one has joined
 	socket.broadcast.emit('join', user);
-	// Send the new client the list of current users (need to grab their data first)
-	var userList = {};
+	// Send the new client a join for all the current users 
 	onlineUsers.forEach(function(userID) {
 		Users.get(userID, function(err, userData) {
 			if (err) { return console.log(err); }
 			// Not gonna send all the clients each other's emails...
 			delete userData.email;
-			userList[userID] = userData;
-			// I hope this doesn't break. Fucking async shit.
-			if (Object.keys(userList).length == onlineUsers.length) {
-				socket.emit('userList', userList);
-			}
+			socket.emit('join', userData);
 		});
 	});
 
