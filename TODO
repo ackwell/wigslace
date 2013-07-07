@@ -6,5 +6,4 @@ throttle email sending
 check size of upload clientside
 ban chars like (space) from usernames
 min/max length on usernames
-look into invalid chars in emails
 allow change email address
