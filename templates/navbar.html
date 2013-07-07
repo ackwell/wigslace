@@ -18,7 +18,7 @@
 					<li><a href="/login">Login</a></li>
 					<li><a href="/register">Register</a></li>
 				{% else %}
-					<li><p class="navbar-text hidden-phone">Hello, {% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}{{ user.id }}</p></li>
+					<li><p class="navbar-text hidden-phone">Hello, {% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}&nbsp;{{ user.id }}</p></li>
 					<li><a href="/edit">Edit Profile</a></li>
 					<li><a href="/logout">Logout</a></li>
 				{% endif %}
