@@ -108,7 +108,7 @@ $(function() {
 	});
 
 	// If we send a message, send it to the server
-	$('#message-input').submit(function() {
+	$('.message-input').submit(function() {
 		var messageBox = $(this).find('[name="message"]');
 		socket.emit('message', messageBox.val());
 		messageBox.val('');
