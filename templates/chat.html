@@ -9,6 +9,7 @@
 	{% parent %}
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/marked.js"></script>
+	<script src="/js/moment.min.js"></script>
 	<script src="/js/chat.js"></script>
 {% endblock %}
 
@@ -22,30 +23,14 @@
 	
 	<div class="tr">
 		<div class="tc">
-
-			<div class="wrapper">
-				<div class="chat">
-				
-					<div class="message">
-						<div class="content">
-							<p>message text goes here</p>
-							<div class="meta">ackwell &bull; 2:23pm</div>
-						</div>
-						<div class="avatar">
-							<img src="http://localhost:8080/uploads/avatars/ackwell/40.png">
-						</div>
-					</div>
-				
-				</div>
-				
-				
-				<div class="user-list">
-					<div class="user">
-						<img src="http://localhost:8080/uploads/avatars/ackwell/20.png">&nbsp;ackwell
+			<div class="content-wrapper">
+				<div class="chat-margin">
+					<div class="chat-wrapper">
+						<div class="chat"></div>
 					</div>
 				</div>
+				<div class="user-list"></div>
 			</div>
-
 		</div>
 	</div>
 

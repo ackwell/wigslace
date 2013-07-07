@@ -318,7 +318,9 @@ app.get('/logout', function(req, res) {
  */
 var socketio = require('socket.io')
 	, passio = require('passport.socketio')
-	, io = socketio.listen(server);
+	, io = socketio.listen(server)
+	// List of user IDs currently chatting
+	, onlineUsers = [];
 
 // Config
 io.set('log level', 2);
@@ -341,10 +343,25 @@ io.set('authorization', passio.authorize({
 io.sockets.on('connection', function(socket) {
 	var user = socket.handshake.user;
 
-	// We have a connection, tell the client as such
+	// Add user to list of online users, tell the client it's connected
+	onlineUsers.push(user.id);
 	socket.emit('ready');
-	// Tell all the other clients we've joined
+	// Tell all the other clients the new one has joined
 	socket.broadcast.emit('join', user);
+	// Send the new client the list of current users (need to grab their data first)
+	var userList = {};
+	onlineUsers.forEach(function(userID) {
+		Users.get(userID, function(err, userData) {
+			if (err) { return console.log(err); }
+			// Not gonna send all the clients each other's emails...
+			delete userData.email;
+			userList[userID] = userData;
+			// I hope this doesn't break. Fucking async shit.
+			if (Object.keys(userList).length == onlineUsers.length) {
+				socket.emit('userList', userList);
+			}
+		});
+	});
 
 	// when a message is received, process it, then broadcast to all clients
 	socket.on('message', function(message) {
@@ -352,8 +369,9 @@ io.sockets.on('connection', function(socket) {
 		io.sockets.emit('message', {user: user.id, message: message});
 	});
 
-	// Client has disconnected
+	// Client has disconnected, remove from online users and tell the other clients as such
 	socket.on('disconnect', function() {
+		onlineUsers.splice(onlineUsers.indexOf(user.id), 1);
 		socket.broadcast.emit('part', user.id);
 	});
 });
