@@ -325,8 +325,8 @@ app.get('/logout', function(req, res) {
 var socketio = require('socket.io')
 	, passio = require('passport.socketio')
 	, io = socketio.listen(server)
-	// List of user IDs currently chatting
-	, onlineUsers = [];
+	// Chat model, currently only used to store online users
+	, Chat = require('./chat')(db)
 
 // Config
 io.set('log level', 2);
@@ -339,7 +339,7 @@ if (config.server.production) {
 
 // Set up socket authorisation and session sharing
 io.set('authorization', passio.authorize({
-	cookieParser: express.cookieParser
+	cookieParser: express.cookieParser 
 , key: app.get('cookieSessionKey')
 , secret: app.get('secretKey')
 , store: sessionStore
@@ -350,17 +350,20 @@ io.sockets.on('connection', function(socket) {
 	var user = socket.handshake.user;
 
 	// Add user to list of online users, tell the client it's connected
-	if (onlineUsers.indexOf(user.id) == -1) { onlineUsers.push(user.id); }
-	socket.emit('ready');
-	// Tell all the other clients the new one has joined
-	socket.broadcast.emit('join', user);
-	// Send the new client a join for all the current users 
-	onlineUsers.forEach(function(userID) {
-		Users.get(userID, function(err, userData) {
-			if (err) { return console.log(err); }
-			// Not gonna send all the clients each other's emails...
-			delete userData.email;
-			socket.emit('join', userData);
+	Chat.addUser(user.id, function(err, success) {	
+		socket.emit('ready');
+		// Tell all the other clients the new one has joined
+		socket.broadcast.emit('join', user);
+		// Send the new client a join for all the current users 
+		Chat.getAllUsers(function(err, users) {
+			users.forEach(function(user) {
+				Users.get(user.id, function(err, userData) {
+					if (err) { return console.log(err); }
+					// Not gonna send all the clients each other's emails...
+					delete userData.email;
+					socket.emit('join', userData);
+				});
+			});
 		});
 	});
 
@@ -376,7 +379,7 @@ io.sockets.on('connection', function(socket) {
 
 	// Client has disconnected, remove from online users and tell the other clients as such
 	socket.on('disconnect', function() {
-		onlineUsers.splice(onlineUsers.indexOf(user.id), 1);
+		Chat.removeUser(user.id);
 		socket.broadcast.emit('part', user.id);
 	});
 });

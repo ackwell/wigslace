@@ -2,3 +2,5 @@ show 'connecting' message
 throttle email sending
 check size of upload clientside
 allow change email address
+various fixes for join/part userlist (especially same user, multi-client)
+RAINBOWS FUCK YEAH
