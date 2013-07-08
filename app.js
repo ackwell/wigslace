@@ -379,8 +379,9 @@ io.sockets.on('connection', function(socket) {
 
 	// Client has disconnected, remove from online users and tell the other clients as such
 	socket.on('disconnect', function() {
-		Chat.removeUser(user.id);
-		socket.broadcast.emit('part', user.id);
+		Chat.removeUser(user.id, function(err, shouldPart) {
+			if (shouldPart) { socket.broadcast.emit('part', user.id); }
+		});
 	});
 });
 
