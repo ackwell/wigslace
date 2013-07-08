@@ -207,8 +207,8 @@ app.post('/register', function(req, res) {
 		validator.check(post.username, {
 			notEmpty: 'Please enter a username.'
 		, notContains: 'Usernames may not contain a space.'
-		, len: 'Usernames must be between 5 and 25 characters'
-		}).notEmpty().notContains(' ').len(5, 25);
+		, len: 'Usernames must be between 2 and 25 characters'
+		}).notEmpty().notContains(' ').len(2, 25);
 		validator.check(post.email, 'Please enter a valid email address.').isEmail();
 		validator.check(post.password, {
 			len: 'Please ensure your password is at least 6 characters long.'
