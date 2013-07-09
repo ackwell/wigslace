@@ -572,130 +572,130 @@ InlineLexer.prototype.output = function(src) {
           : this.mangle(cap[1]);
         href = this.mangle('mailto:') + text;
       } else {
-        text = escape(cap[1]);
-        href = text;
-      }
-      out += '<a href="'
-        + href
-        + '">'
-        + text
-        + '</a>';
-      continue;
-    }
+text = escape(cap[1]);
+href = text;
+}
+out += '<a href="'
++ href
++ '">'
++ text
++ '</a>';
+continue;
+}
 
-    // url (gfm)
-    if (cap = this.rules.url.exec(src)) {
-      src = src.substring(cap[0].length);
-      text = escape(cap[1]);
-      href = text;
-      out += '<a href="'
-        + href
-        + '">'
-        + text
-        + '</a>';
-      continue;
-    }
+// url (gfm)
+if (cap = this.rules.url.exec(src)) {
+src = src.substring(cap[0].length);
+text = escape(cap[1]);
+href = text;
+out += '<a href="'
++ href
++ '">'
++ text
++ '</a>';
+continue;
+}
 
-    // tag
-    if (cap = this.rules.tag.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.options.sanitize
-        ? escape(cap[0])
-        : cap[0];
-      continue;
-    }
+// tag
+if (cap = this.rules.tag.exec(src)) {
+src = src.substring(cap[0].length);
+out += this.options.sanitize
+? escape(cap[0])
+: cap[0];
+continue;
+}
 
-    // link
-    if (cap = this.rules.link.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += this.outputLink(cap, {
-        href: cap[2],
-        title: cap[3]
-      });
-      continue;
-    }
+// link
+if (cap = this.rules.link.exec(src)) {
+src = src.substring(cap[0].length);
+out += this.outputLink(cap, {
+href: cap[2],
+title: cap[3]
+});
+continue;
+}
 
-    // reflink, nolink
-    if ((cap = this.rules.reflink.exec(src))
-        || (cap = this.rules.nolink.exec(src))) {
-      src = src.substring(cap[0].length);
-      link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
-      link = this.links[link.toLowerCase()];
-      if (!link || !link.href) {
-        out += cap[0][0];
-        src = cap[0].substring(1) + src;
-        continue;
-      }
-      out += this.outputLink(cap, link);
-      continue;
-    }
+// reflink, nolink
+if ((cap = this.rules.reflink.exec(src))
+|| (cap = this.rules.nolink.exec(src))) {
+src = src.substring(cap[0].length);
+link = (cap[2] || cap[1]).replace(/\s+/g, ' ');
+link = this.links[link.toLowerCase()];
+if (!link || !link.href) {
+out += cap[0][0];
+src = cap[0].substring(1) + src;
+continue;
+}
+out += this.outputLink(cap, link);
+continue;
+}
 
-    // strong
-    if (cap = this.rules.strong.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += '<strong>'
-        + this.output(cap[2] || cap[1])
-        + '</strong>';
-      continue;
-    }
+// strong
+if (cap = this.rules.strong.exec(src)) {
+src = src.substring(cap[0].length);
+out += '<strong>'
++ this.output(cap[2] || cap[1])
++ '</strong>';
+continue;
+}
 
-    // em
-    if (cap = this.rules.em.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += '<em>'
-        + this.output(cap[2] || cap[1])
-        + '</em>';
-      continue;
-    }
+// em
+if (cap = this.rules.em.exec(src)) {
+src = src.substring(cap[0].length);
+out += '<em>'
++ this.output(cap[2] || cap[1])
++ '</em>';
+continue;
+}
 
-    // code
-    if (cap = this.rules.code.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += '<code>'
-        + escape(cap[2], true)
-        + '</code>';
-      continue;
-    }
+// code
+if (cap = this.rules.code.exec(src)) {
+src = src.substring(cap[0].length);
+out += '<code>'
++ escape(cap[2], true)
++ '</code>';
+continue;
+}
 
-    // br
-    if (cap = this.rules.br.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += '<br>';
-      continue;
-    }
+// br
+if (cap = this.rules.br.exec(src)) {
+src = src.substring(cap[0].length);
+out += '<br>';
+continue;
+}
 
-    // del (gfm)
-    if (cap = this.rules.del.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += '<del>'
-        + this.output(cap[1])
-        + '</del>';
-      continue;
-    }
+// del (gfm)
+if (cap = this.rules.del.exec(src)) {
+src = src.substring(cap[0].length);
+out += '<del>'
++ this.output(cap[1])
++ '</del>';
+continue;
+}
 
-    // text
-    if (cap = this.rules.text.exec(src)) {
-      src = src.substring(cap[0].length);
-      out += escape(this.smartypants(cap[0]));
-      continue;
-    }
+// text
+if (cap = this.rules.text.exec(src)) {
+src = src.substring(cap[0].length);
+out += escape(this.smartypants(cap[0]));
+continue;
+}
 
-    if (src) {
-      throw new
-        Error('Infinite loop on byte: ' + src.charCodeAt(0));
-    }
-  }
+if (src) {
+throw new
+Error('Infinite loop on byte: ' + src.charCodeAt(0));
+}
+}
 
-  return out;
+return out;
 };
 
 /**
- * Compile Link
- */
+* Compile Link
+*/
 
 InlineLexer.prototype.outputLink = function(cap, link) {
-  if (cap[0][0] !== '!') {
-    return '<a href="'
+if (cap[0][0] !== '!') {
+return '<a href="'
       + escape(link.href)
       + '"'
       + (link.title
@@ -703,7 +703,7 @@ InlineLexer.prototype.outputLink = function(cap, link) {
       + escape(link.title)
       + '"'
       : '')
-      + '>'
+      + ' target="_blank">'
       + this.output(cap[1])
       + '</a>';
   } else {
