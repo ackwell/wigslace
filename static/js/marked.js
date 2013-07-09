@@ -572,28 +572,28 @@ InlineLexer.prototype.output = function(src) {
           : this.mangle(cap[1]);
         href = this.mangle('mailto:') + text;
       } else {
-text = escape(cap[1]);
-href = text;
-}
-out += '<a href="'
-+ href
-+ '">'
-+ text
-+ '</a>';
-continue;
-}
+        text = escape(cap[1]);
+        href = text;
+      }
+      out += '<a href="'
+           + href
+           + '" target="_blank">'
+           + text
+           + '</a>';
+      continue;
+    }
 
-// url (gfm)
-if (cap = this.rules.url.exec(src)) {
-src = src.substring(cap[0].length);
-text = escape(cap[1]);
-href = text;
-out += '<a href="'
-+ href
-+ '">'
-+ text
-+ '</a>';
-continue;
+    // url (gfm)
+    if (cap = this.rules.url.exec(src)) {
+      src = src.substring(cap[0].length);
+      text = escape(cap[1]);
+      href = text;
+      out += '<a href="'
+          + href
+          + '" target="_blank">'
+          + text
+          + '</a>';
+      continue;
 }
 
 // tag
