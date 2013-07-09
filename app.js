@@ -357,13 +357,22 @@ io.sockets.on('connection', function(socket) {
 		// Send the new client a join for all the current users 
 		Chat.getAllUsers(function(err, users) {
 			users.forEach(function(user) {
-				Users.get(user.id, function(err, userData) {
-					if (err) { return console.log(err); }
-					// Not gonna send all the clients each other's emails...
-					delete userData.email;
-					socket.emit('join', userData);
-				});
+				// Only need to send the id, client will request additional data seperately.
+				socket.emit('join', user.id);
+				// Users.get(user.id, function(err, userData) {
+				// 	if (err) { return console.log(err); }
+				// 	// Not gonna send all the clients each other's emails...
+				// 	delete userData.email;
+				// 	socket.emit('join', userData);
+				// });
 			});
+		});
+	});
+
+	// Spam them with messages from the log
+	Chat.getLog(function(err, log) {
+		log.forEach(function(logitem) {
+			socket.emit('message', logitem);
 		});
 	});
 
@@ -374,7 +383,15 @@ io.sockets.on('connection', function(socket) {
 		message = message.trim();
 		if (!message.length) { return; }
 
-		io.sockets.emit('message', {user: user.id, message: message});
+		var data = {
+			id: user.id
+		, message: message
+		, time: new Date
+		}
+
+		Chat.log(data, function(err, logEntry) {
+			io.sockets.emit('message', data);
+		});
 	});
 
 	// Client has disconnected, remove from online users and tell the other clients as such

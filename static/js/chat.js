@@ -39,20 +39,22 @@ $(function() {
 	 * Chat
 	 */
 	var Chat = {
-		add: function(user, message) {
+		add: function(data) {
 			var chat = $('.chat')
 				, wrapper = $('.chat-wrapper')
+				, user = data.user
 				, messageHTML = '\
-				<div class="message user-{0}">\
+				<div class="message user-{0} {4}">\
 					<div class="content">\
 						{1}<div class="meta">{0}&nbsp;&bull;&nbsp;{2}</div>\
 					</div>\
 					<div class="avatar">{3}</div>\
 				</div>'.format(
 						user.id
-					, marked(message)
-					, moment().format('h:mm A')
+					, marked(data.message)
+					, moment(data.time).format('h:mm A')
 					, (user.avatar? '<img src="{0}40.png">'.format(user.avatar) : '')
+					, (user.offline? 'offline' : '')
 					)
 				, shouldScroll = wrapper.scrollTop()>=chat.height()-wrapper.height();
 			chat.append(messageHTML);
@@ -82,12 +84,14 @@ $(function() {
 	// If we recieve a message line, add it to the view
 	// The messages are sanitised serverside.
 	socket.on('message', function(data) {
-		var user = UserList.users[data.user];
+		console.log(data);
+		var user = UserList.users[data.id];
 		if (!user) {
-			console.log('User "{0}" does not seem to be online...'.format(data.user));
-			return;
+			console.log('User "{0}" does not seem to be online...'.format(data.id));
+			user = {id: data.id, offline: true};
 		}
-		Chat.add(user, data.message);
+		data.user = user;
+		Chat.add(data);
 	});
 
 	// A user has joined
