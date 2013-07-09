@@ -56,7 +56,7 @@ $(function() {
 			if (user) {
 				if (user.avatar) { avatar = '<img src="{0}20.png">'.format(user.avatar); }
 			} else {
-				avatar = '<span class="pending-{0}">placeholder\
+				avatar = '<span class="pending-{0}"><img src="/default/avatars/placeholder/20.png">\
 				            <span class="template hide"><img src="{avatar}20.png"></span>\
 				          </span>'.format(userID);
 			}
@@ -89,7 +89,7 @@ $(function() {
 			if (user) {
 				if (user.avatar) { avatar = '<img src="{0}40.png">'.format(user.avatar); }
 			} else {
-				avatar = '<span class="pending-{0}">placeholder\
+				avatar = '<span class="pending-{0}"><img src="/default/avatars/placeholder/40.png">\
 				            <span class="template hide"><img src="{avatar}40.png"></span>\
 				          </span>'.format(data.id);
 			}

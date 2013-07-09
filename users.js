@@ -44,7 +44,6 @@ module.exports = function(db) {
 		} else {
 			avatar = avatars.members[Math.floor(Math.random()*avatars.members.length)];
 		}
-		console.log(avatar);
 
 		// Search for users with the same id/email
 		model.findOne({$or: [{id: username}, {email: email}]}, function(err, user) {
