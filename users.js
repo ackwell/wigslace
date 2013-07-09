@@ -35,6 +35,17 @@ module.exports = function(db) {
 	// Register a new user
 	userSchema.statics.register = function(username, email, password, done) {
 		var model = db.model('User');
+		// Try and get a specified avatar for the user from the config defaults,
+		// if none exists, grab one of the defaults
+		var avatar = ''
+			, avatars = config.defaults.avatars;
+		if (avatars.hasOwnProperty(username)) {
+			avatar = avatars[username];
+		} else {
+			avatar = avatars.members[Math.floor(Math.random()*avatars.members.length)];
+		}
+		console.log(avatar);
+
 		// Search for users with the same id/email
 		model.findOne({$or: [{id: username}, {email: email}]}, function(err, user) {
 			if (err) { return done(err); }
@@ -51,6 +62,7 @@ module.exports = function(db) {
 					id: username
 				, email: email
 				, hash: hash
+				, avatar: avatar
 				});
 				newUser.save(function(err, newUser) {
 					if (err) { return done(err); }

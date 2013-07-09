@@ -18,6 +18,20 @@ var config = {
 	, user: 'someaccount'
 	, password: 'password'
 	}
+, defaults: {
+		avatars: {
+			admin: '/default/avatars/admin/'
+		, members: [
+				'/default/avatars/generic-1/'
+			, '/default/avatars/generic-2/'
+			, '/default/avatars/homura/'
+			, '/default/avatars/kyouko/'
+			, '/default/avatars/madoka/'
+			, '/default/avatars/mami/'
+			, '/default/avatars/sayaka/'
+			]
+		}
+	}
 };
 
 module.exports = config;
