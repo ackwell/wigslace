@@ -353,18 +353,12 @@ io.sockets.on('connection', function(socket) {
 	Chat.addUser(user.id, function(err, success) {	
 		socket.emit('ready');
 		// Tell all the other clients the new one has joined
-		socket.broadcast.emit('join', user);
+		socket.broadcast.emit('join', user.id);
 		// Send the new client a join for all the current users 
 		Chat.getAllUsers(function(err, users) {
 			users.forEach(function(user) {
 				// Only need to send the id, client will request additional data seperately.
 				socket.emit('join', user.id);
-				// Users.get(user.id, function(err, userData) {
-				// 	if (err) { return console.log(err); }
-				// 	// Not gonna send all the clients each other's emails...
-				// 	delete userData.email;
-				// 	socket.emit('join', userData);
-				// });
 			});
 		});
 	});
@@ -373,6 +367,16 @@ io.sockets.on('connection', function(socket) {
 	Chat.getLog(function(err, log) {
 		log.forEach(function(logitem) {
 			socket.emit('message', logitem);
+		});
+	});
+
+	// If a client requests some user data, send it to them
+	socket.on('getUser', function(userID) {
+		Users.get(userID, function(err, userData) {
+			if (err) { return console.log(err); }
+			// Not gonna send all the clients each other's emails...
+			delete userData.email;
+			socket.emit('userData', userData);
 		});
 	});
 
