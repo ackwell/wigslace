@@ -64,20 +64,19 @@ module.exports = function(db) {
 	}
 
 	chatLogSchema.statics.removeUser = function(id, done) {
-		var model = db.model('Chat');
-		model.checkUserOnline(id, function(err, user) {
+		// User client has left chat, decrement their client count
+		OnlineUsers.findOneAndUpdate({id: id}, {$inc: {clients: -1}}, function(err, onlineUser) {
 			// A user who is not online just disconnected... wat? Send out the part message anyway
-			if (!user) { return done(null, true); }
-			if (user.clients <= 1) {
-				// Last client left, remove from list and send part message
-				OnlineUsers.findOneAndRemove({id: id}, function(err, removed) {
+			if (!onlineUser) { return done(null, true); }
+			// If that was their last client, remove them and tell the callback it's OK to send a part
+			// Otherwise don't need to do anything
+			if (onlineUser.clients <= 0) {
+				onlineUser.remove(function(err) {
+					if (err) { return done(err); }
 					return done(null, true);
 				});
 			} else {
-				// Still got clients online, decrement the number
-				OnlineUsers.update({id: id}, {$inc: {clients: -1}}, function(err) {
-					return done(null, false);
-				});
+				return done(null, false);
 			}
 		});
 	}

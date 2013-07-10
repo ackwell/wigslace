@@ -148,7 +148,8 @@ $(function() {
 
 	// User has left
 	socket.on('part', function(userID) {
-		UserList.part(userID);
+		console.log('user parted:', userID);
+		Users.part(userID);
 	});
 
 	// If we send a message, send it to the server
