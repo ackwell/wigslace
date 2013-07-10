@@ -374,6 +374,7 @@ io.sockets.on('connection', function(socket) {
 	socket.on('getUser', function(userID) {
 		Users.get(userID, function(err, userData) {
 			if (err) { return console.log(err); }
+			if (!userData) { return console.log('Client requested details for a non-existant user'); }
 			// Not gonna send all the clients each other's emails...
 			delete userData.email;
 			socket.emit('userData', userData);
