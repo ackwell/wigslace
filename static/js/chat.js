@@ -94,19 +94,28 @@ $(function() {
 				          </span>'.format(data.id);
 			}
 
+			// RAINBOWS MAKE THE WORLD GO ROUND
+			var message = data.message
+				, rainbow = false; // ;_;
+			if (message.indexOf('/rainbow') == 0) {
+				rainbow = true;
+				message = message.replace('/rainbow', '').trim();
+			}
+
 			var chat = $('.chat')
 				, wrapper = $('.chat-wrapper')
 				, messageHTML = '\
 				<div class="message user-{0}">\
-					<div class="content">\
+					<div class="content{4}">\
 						{1}<div class="meta">{0}&nbsp;&bull;&nbsp;{2}</div>\
 					</div>\
 					<div class="avatar">{3}</div>\
 				</div>'.format(
 						data.id
-					, marked(data.message)
+					, marked(message)
 					, moment(data.time).format('h:mm A')
 					, avatar
+					, rainbow? ' rainbow' : ''
 					)
 				, shouldScroll = wrapper.scrollTop()>=chat.height()-wrapper.height();
 			chat.append(messageHTML);
@@ -139,7 +148,6 @@ $(function() {
 	// Scrollback is just lots of messages sent at once, to save the massive message spam
 	socket.on('scrollback', function(messages) {
 		for (var i = 0; i < messages.length; i++) {
-			console.log(messages[i]);
 			Chat.add(messages[i]);
 		}
 	});
