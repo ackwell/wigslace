@@ -365,9 +365,7 @@ io.sockets.on('connection', function(socket) {
 
 	// Spam them with messages from the log
 	Chat.getLog(function(err, log) {
-		log.forEach(function(logitem) {
-			socket.emit('message', logitem);
-		});
+		socket.emit('scrollback', log);
 	});
 
 	// If a client requests some user data, send it to them

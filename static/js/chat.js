@@ -136,6 +136,14 @@ $(function() {
 		Chat.add(data);
 	});
 
+	// Scrollback is just lots of messages sent at once, to save the massive message spam
+	socket.on('scrollback', function(messages) {
+		for (var i = 0; i < messages.length; i++) {
+			console.log(messages[i]);
+			Chat.add(messages[i]);
+		}
+	});
+
 	// server sent us userdata
 	socket.on('userData', function(userData) {
 		Users.dataRecieved(userData);
@@ -148,7 +156,6 @@ $(function() {
 
 	// User has left
 	socket.on('part', function(userID) {
-		console.log('user parted:', userID);
 		Users.part(userID);
 	});
 
