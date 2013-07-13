@@ -1,3 +1,7 @@
+// Rainbow text thingo. Creds to http://rainbowcoding.com/how-to-create-rainbow-text-in-html-css-javascript/ (Slightly modified)
+function color_from_hue(d){var f=d/60;var g=255;var a=(1-Math.abs(f%2-1))*255;var b;var e=Math.floor(f);if(e==0){b=rgb_to_hex(g,a,0)}else{if(e==1){b=rgb_to_hex(a,g,0)}else{if(e==2){b=rgb_to_hex(0,g,a)}else{if(e==3){b=rgb_to_hex(0,a,g)}else{if(e==4){b=rgb_to_hex(a,0,g)}else{b=rgb_to_hex(g,0,a)}}}}}return b};
+function rgb_to_hex(d,c,a){var b=((d<<16)|(c<<8)|(a)).toString(16);while(b.length<6){b="0"+b}return"#"+b};
+(function(a){a.fn.rainbowize=function(){return this.each(function(){var d="";var b=0;var e=0;var f=a(this).text();	if(f.length>0){e=360/(f.length)}for(var c=0;c<f.length;c++){d=d+'<span style="color:'+color_from_hue(b)+'">'+f.charAt(c)+"</span>";b+=e}if(f){a(this).html(d)}})}})(jQuery);
 
 /* -- https://bitbucket.org/AMcBain/bb-code-parser
    --

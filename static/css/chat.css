@@ -26,6 +26,3 @@ html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;
 .message-input input {width: 100%; height: 35px; border: none; border-top: 1px solid #ccc; border-radius: 0; margin: 0;}
 .message-input button {width: 50px; height: 35px; border: none; border-top: 1px solid rgba(0,0,0,0.1); border-radius: 0; position: absolute; right: 0; top: 0; transition: border 0.2s linear 0s;}
 .message-input input:focus + button {border-color: rgba(82, 168, 236, 0.8);}
-
-/* FUCKING RAINBOWS MAN YEHAW */
-.chat .message .content.rainbow {background: url(/img/rainbow.png) repeat-y 100% 0 white; padding-right: 25px;}

@@ -1,3 +1,6 @@
+/*
+ * Plugins/utilities
+ */
 // String formatting thingo. Creds to http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format/4673436#4673436
 if (!String.prototype.format) {
   String.prototype.format = function() {
@@ -11,6 +14,9 @@ if (!String.prototype.format) {
   };
 }
 
+/*
+ * Chat code
+ */
 $(function() {
 	// Set up a socket.io connection
 	var socket = io.connect(window.location.origin);
@@ -99,9 +105,10 @@ $(function() {
 				          </span>'.format(data.id);
 			}
 
-			// RAINBOWS MAKE THE WORLD GO ROUND
 			var message = data.message
-				, rainbow = false; // ;_;
+
+			// RAINBOWS MAKE THE WORLD GO ROUND
+			var rainbow = false; // ;_;
 			if (message.indexOf('/rainbow') == 0) {
 				rainbow = true;
 				message = message.replace('/rainbow', '').trim();
@@ -111,11 +118,17 @@ $(function() {
 			message = bbcode.format(message);
 			message = marked(message);
 
+			if (rainbow) { // Need to use jQuery here :/
+				var tempMsg = $(message);
+				tempMsg.rainbowize();
+				message = tempMsg[0].outerHTML;
+			}
+
 			var chat = $('.chat')
 				, wrapper = $('.chat-wrapper')
 				, messageHTML = '\
 				<div class="message user-{0}">\
-					<div class="content{4}">\
+					<div class="content">\
 						{1}<div class="meta">{0}&nbsp;&bull;&nbsp;{2}</div>\
 					</div>\
 					<div class="avatar">{3}</div>\
@@ -124,7 +137,6 @@ $(function() {
 					, message
 					, moment(data.time).format('h:mm A')
 					, avatar
-					, rainbow? ' rainbow' : ''
 					)
 				, shouldScroll = wrapper.scrollTop()>=chat.height()-wrapper.height();
 			chat.append(messageHTML);
