@@ -15,6 +15,11 @@ $(function() {
 	// Set up a socket.io connection
 	var socket = io.connect(window.location.origin);
 
+	// Line up the BBCode parser. and for fucks sake don't escape everything you whore
+	var bbcode = new BBCodeParser({
+		escapeContentOutput: false
+	});
+
 	/*
 	 * User List
 	 */
@@ -102,6 +107,10 @@ $(function() {
 				message = message.replace('/rainbow', '').trim();
 			}
 
+			// Format the message. Need to parse with bbcode first, markdown likes to break bbcode
+			message = bbcode.format(message);
+			message = marked(message);
+
 			var chat = $('.chat')
 				, wrapper = $('.chat-wrapper')
 				, messageHTML = '\
@@ -112,7 +121,7 @@ $(function() {
 					<div class="avatar">{3}</div>\
 				</div>'.format(
 						data.id
-					, marked(message)
+					, message
 					, moment(data.time).format('h:mm A')
 					, avatar
 					, rainbow? ' rainbow' : ''
