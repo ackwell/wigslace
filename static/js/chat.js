@@ -21,11 +21,6 @@ $(function() {
 	// Set up a socket.io connection
 	var socket = io.connect(window.location.origin);
 
-	// Line up the BBCode parser. and for fucks sake don't escape everything you whore
-	var bbcode = new BBCodeParser({
-		escapeContentOutput: false
-	});
-
 	/*
 	 * User List
 	 */
