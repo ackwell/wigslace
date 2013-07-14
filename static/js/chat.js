@@ -109,7 +109,7 @@ $(function() {
 				message = message.replace('/rainbow', '').trim();
 			}
 
-			// Format the message. Need to parse with bbcode first, markdown likes to break bbcode
+			// Format the message. BBcode parses into markdown first
 			message = bbcode.format(message);
 			message = marked(message);
 
