@@ -1,18 +1,25 @@
 /* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font-size:inherit;font-weight:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
 
-/* Settings */
-@mid: #34495e;
+/* Colour */
+@light: #34495e;
 @dark: #2c3e50;
 @inverse: white;
+@grey: #bdc3c7;
+
+/* Sizes */
+@font-default: 13px;
 
 /* Global stuff */
 * {
 	color: inherit;
-	font-family: 'Lato', sans-serif;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	font: @font-default 'Lato', sans-serif;
 }
 
 a {
+	color: @light;
 	text-decoration: none;
 }
 
@@ -31,14 +38,14 @@ h4 {font-size: 29px;}
 h5 {font-size: 29px;}
 h6 {font-size: 24px;}
 
-h1 small {
-	color: fade(@dark, 30%);
+h2 small {
+	color: fade(@dark, 30%);;
 	display: block;
 	font-size: 22px;
 	font-weight: normal;
 }
 
-/* Shared thins */
+/* Shared things */
 .page-width {
 	width: 970px;
 	padding: 0 15px;
@@ -47,36 +54,107 @@ h1 small {
 
 /* Navbar */
 .navbar {
-	color: fade(@inverse, 80%);
-	background: @mid;
+	background: @light;
 	height: 40px;
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
-	line-height: 40px;
+
+	* {
+		color: fade(@inverse, 80%);
+		line-height: 40px;
+	}
 
 	.title {
+		display: inline;
 		font-size: 25px;
+		font-weight: normal;
 	}
 
 	.menu {
+		margin-right: -10px;
 		display: block;
 		float: right;
 
 		li {
-			margin-left: 20px;
 			float: left;
+
+			a {
+				.hover(@light);
+				height: 40px;
+				padding: 0 10px;
+				display: block;
+			}
 		}
 	}
 }
-
 
 /* Content pages */
 .content {
 	margin-top: 40px;
 }
 .page-header {
+	margin-bottom: 20px;
 	display: block;
 	text-align: center;
+}
+
+/* Forms */
+fieldset {
+	width: 470px;
+	padding: 10px;
+	border: 2px solid @grey;
+	border-radius: 6px;
+	margin: 0 auto;
+
+	input {
+		background: white;
+		width: 100%;
+		padding: 8px 12px;
+		border: 2px solid @grey;
+		border-radius: 6px;
+		margin-bottom: 10px;
+
+		&:focus {
+			border-color: @light;
+			outline: none;
+		}
+	}
+
+	:-moz-placeholder {color: @grey;}
+	::-moz-placeholder {color: @grey;}
+	:-ms-input-placeholder {color: @grey;}
+	::-webkit-input-placeholder {color: @grey;}
+	.placeholder {color: @grey;}
+}
+
+/* Buttons */
+.button {
+	color: @inverse;
+	.hover(@grey);
+	padding: 5px 10px;
+	border: none;
+	border-radius: 4px;
+	display: inline-block;
+	font-size: @font-default;
+	cursor: pointer;
+}
+button.button {
+	padding: 4px 10px;
+}
+.button + .button {
+	margin-left: 10px;
+}
+
+.button.primary {
+	.hover(@dark);
+}
+
+/* Mixins */
+.hover(@colour) {
+	background-color: @colour;
+	&:hover {
+		background-color: lighten(@colour, 10%);
+	}
 }

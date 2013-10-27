@@ -4,24 +4,12 @@
 {% block pageSubHeader %}お帰りなさい～{% endblock %}
 
 {% block content %}
-	<form action="{{ pageURL }}" method="post" class="form-horizontal">
-		<div class="control-group">
-			<label class="control-label" for="username">Username</label>
-			<div class="controls">
-				<input type="text" name="username" id="username"/>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label" for="password">Password</label>
-			<div class="controls">
-				<input type="password" name="password" id="password"/>
-			</div>
-		</div>
-		<div class="control-group">
-			<div class="controls">
-			<button type="submit" class="btn btn-primary">Login</button>
-			<a href="/recover" class="btn">Forgot password?</a>
-			</div>
-		</div>
+	<form action="{{ pageURL }}" method="post">
+		<fieldset>
+			<input type="text" name="username" placeholder="Username"/>
+			<input type="password" name="password" placeholder="Password"/>
+			<button type="submit" class="button primary">Login</button>
+			<a href="/recover" class="button">Forgot password?</a>
+		</fieldset>
 	</form>
 {% endblock %}
