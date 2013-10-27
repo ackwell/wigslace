@@ -1,6 +1,9 @@
 /* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font-size:inherit;font-weight:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
 
+/* Some more resets */
+html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;}
+
 /* Colour */
 @light: #34495e;
 @dark: #2c3e50;
@@ -52,54 +55,6 @@ h2 small {
 	margin: 0 auto;
 }
 
-/* Navbar */
-.navbar {
-	background: @light;
-	height: 40px;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-
-	* {
-		color: fade(@inverse, 80%);
-		line-height: 40px;
-	}
-
-	.title {
-		display: inline;
-		font-size: 25px;
-		font-weight: normal;
-	}
-
-	.menu {
-		margin-right: -10px;
-		display: block;
-		float: right;
-
-		li {
-			float: left;
-
-			a {
-				.hover(@light);
-				height: 40px;
-				padding: 0 10px;
-				display: block;
-			}
-		}
-	}
-}
-
-/* Content pages */
-.content {
-	margin-top: 40px;
-}
-.page-header {
-	margin-bottom: 20px;
-	display: block;
-	text-align: center;
-}
-
 /* Forms */
 fieldset {
 	width: 470px;
@@ -107,20 +62,20 @@ fieldset {
 	border: 2px solid @grey;
 	border-radius: 6px;
 	margin: 0 auto;
+}
+
+input {
+	background: white;
+	width: 100%;
+	padding: 8px 12px;
+	border: 2px solid @grey;
+	border-radius: 6px;
+	margin-bottom: 10px;
 	.placeholder(@grey);
 
-	input {
-		background: white;
-		width: 100%;
-		padding: 8px 12px;
-		border: 2px solid @grey;
-		border-radius: 6px;
-		margin-bottom: 10px;
-
-		&:focus {
-			border-color: @light;
-			outline: none;
-		}
+	&:focus {
+		border-color: @light;
+		outline: none;
 	}
 }
 
@@ -160,4 +115,100 @@ button.button {
 	:-ms-input-placeholder {color: @colour;}
 	::-webkit-input-placeholder {color: @colour;}
 	.placeholder {color: @colour;}
+}
+
+/* Navbar */
+.navbar {
+	background: @light;
+	height: 40px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+
+	* {
+		color: fade(@inverse, 80%);
+		line-height: 40px;
+	}
+
+	.title {
+		display: inline;
+		font-size: 25px;
+		font-weight: normal;
+	}
+
+	.menu {
+		margin-right: -10px;
+		display: block;
+		float: right;
+
+		li {
+			float: left;
+
+			a, p {
+				padding: 0 10px;
+			}
+
+			a {
+				.hover(@light);
+				height: 40px;
+				display: block;
+			}
+		}
+	}
+}
+
+/* Content pages */
+.content {
+	height: 100%;
+	padding-top: 40px;
+}
+.page-header {
+	margin-bottom: 20px;
+	display: block;
+	text-align: center;
+}
+
+/* Chat page */
+.chat-margin {
+	height: 100%;
+	/*margin-right: 200px;*/
+	position: relative;
+}
+
+.chat-wrapper {
+	margin-bottom: 40px;
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	overflow-y: auto;
+}
+
+.chat {position: static;}
+
+.message-input {
+	width: 100%;
+	padding-right: 50px;
+	position: absolute;
+	bottom: 0;
+
+	input {
+		margin-bottom: 2px;
+		border-right: none;
+		border-radius: 6px 0 0 6px;
+	}
+
+	button {
+		width: 50px;
+		height: 36px;
+		border-radius: 0 6px 6px 0;
+		position: absolute;
+		right: 0;
+	}
+
+	input:focus + button {
+		.hover(@dark);
+	}
 }

@@ -18,35 +18,35 @@
 	{% endblock %}
 </head>
 <body>
-	{% block body %}
 	{% include 'navbar.html' %}
 
 	{# Main body #}
 	<div class="page-width content">
-		<div class="page-header">
-			<h2>
-				{% block pageHeader %}{% endblock %}
-				<small>{% block pageSubHeader %}{% endblock %}</small>
-			</h1>
-		</div>
-
-		{# Alerts #}
-		{% for error in errors %}
-			<div class="alert alert-error">
-				<button type="button" class="close" data-dismiss="alert">&times;</button>
-				<strong>Error!</strong> {{ error }}
+		{% block body %}
+			<div class="page-header">
+				<h2>
+					{% block pageHeader %}{% endblock %}
+					<small>{% block pageSubHeader %}{% endblock %}</small>
+				</h1>
 			</div>
-		{% endfor %}
-		{% for message in info %}
-			<div class="alert alert-info">
-				<button type="button" class="close" data-dismiss="alert">&times;</button>
-				{{ message }}
-			</div>
-		{% endfor %}
 
-		{% block content %}
+			{# Alerts #}
+			{% for error in errors %}
+				<div class="alert alert-error">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+					<strong>Error!</strong> {{ error }}
+				</div>
+			{% endfor %}
+			{% for message in info %}
+				<div class="alert alert-info">
+					<button type="button" class="close" data-dismiss="alert">&times;</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+
+			{% block content %}
+			{% endblock %}
 		{% endblock %}
 	</div>
-	{% endblock %}
 </body>
 </html>

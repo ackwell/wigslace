@@ -1,10 +1,5 @@
 {% extends 'layout.html' %}
 
-{% block headCSS %}
-	{% parent %}
-	<link href="/css/chat.css" rel="stylesheet">
-{% endblock %}
-
 {% block headJS %}
 	{% parent %}
 	<script src="/socket.io/socket.io.js"></script>
@@ -14,33 +9,14 @@
 {% endblock %}
 
 {% block body %}
-<div class="t">
-	<div class="tr">
-		<div class="tc collapse">
-			{% include 'navbar.html' %}
+	<div class="chat-margin">
+		<div class="chat-wrapper">
+			<div class="chat"></div>
 		</div>
+		<form action="javascript:void(0);" class="message-input">
+			<input type="text" name="message" autocomplete="off" placeholder="Message">
+			<button type="submit" class="button">Send</button>
+		</form>
 	</div>
-	
-	<div class="tr">
-		<div class="tc">
-			<div class="content-wrapper">
-				<div class="chat-margin">
-					<div class="chat-wrapper">
-						<div class="chat"></div>
-					</div>
-				</div>
-				<div class="user-list"></div>
-			</div>
-		</div>
-	</div>
-
-	<div class="tr">
-		<div class="tc collapse">
-			<form action="javascript:void(0);" class="message-input">
-				<input type="text" name="message" autocomplete="off">
-				<button type="submit" class="btn">Send</button>
-			</form>
-		</div>
-	</div>
-</div>
+	<div class="user-list"></div>
 {% endblock %}
