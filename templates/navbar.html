@@ -1,6 +1,6 @@
-<div class="navbar navbar-static-top">
-	<div class="navbar-inner">
-		<a class="btn btn-navbar user-button" data-toggle="collapse" data-target=".nav-collapse">
+<div class="navbar">
+	<div class="page-width">
+		<!--a class="btn btn-navbar user-button" data-toggle="collapse" data-target=".nav-collapse">
 			{% if user %}
 				{% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}{{ user.id }}
 			{% else %}
@@ -8,22 +8,20 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			{% endif %}
-		</a>
+		</a-->
 
-		<a class="brand" href="/">Wigslace</a>
+		<a class="title" href="/">Wigslace</a>
 
-		<div class="nav-collapse collapse">
-			<ul class="nav pull-right">
-				{% if !user %}
-					<li><a href="/login">Login</a></li>
-					<li><a href="/register">Register</a></li>
-				{% else %}
-					<li><p class="navbar-text hidden-phone">Hello, {% if user.avatar %}<img src="{{ user.avatar }}20.png"/>{% endif %}&nbsp;{{ user.id }}</p></li>
-					<li><a href="/chat">Chat</a></li>
-					<li><a href="/edit">Edit Profile</a></li>
-					<li><a href="/logout">Logout</a></li>
-				{% endif %}
-			</ul>
-		</div>
+		<ul class="menu">
+			{% if !user %}
+				<li><a href="/login">Login</a></li>
+				<li><a href="/register">Register</a></li>
+			{% else %}
+				<li><p>Hello, {{ user.id }}</p></li>
+				<li><a href="/chat">Chat</a></li>
+				<li><a href="/edit">Edit Profile</a></li>
+				<li><a href="/logout">Logout</a></li>
+			{% endif %}
+		</ul>
 	</div>
 </div>

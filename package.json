@@ -5,7 +5,7 @@
 , "private": true
 , "main": "app.js"
 , "dependencies": {
-		"bcrypt": "latest"
+	  "bcrypt": "latest"
 	, "cookie": "latest"
 	, "connect": "latest"
 	, "connect-flash": "latest"
@@ -15,6 +15,7 @@
 	, "emailjs": "latest"
 	, "express": "latest"
 	, "gm": "latest"
+	, "less-middleware": "latest"
 	, "mkdirp": "latest"
 	, "mongoose": "latest"
 	, "passport": "latest"

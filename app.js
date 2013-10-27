@@ -79,6 +79,13 @@ Users.get('admin', function(err, user) {
 /*
  * Other middleware and handlers
  */
+// Compile CSS
+var less = require('less-middleware');
+app.use(less({
+  src: __dirname + '/static'
+, compress: true
+}));
+
 // Serve static files
 app.use(express.static(__dirname + '/static'));
 
