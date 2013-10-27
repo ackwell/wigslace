@@ -107,6 +107,7 @@ fieldset {
 	border: 2px solid @grey;
 	border-radius: 6px;
 	margin: 0 auto;
+	.placeholder(@grey);
 
 	input {
 		background: white;
@@ -121,12 +122,6 @@ fieldset {
 			outline: none;
 		}
 	}
-
-	:-moz-placeholder {color: @grey;}
-	::-moz-placeholder {color: @grey;}
-	:-ms-input-placeholder {color: @grey;}
-	::-webkit-input-placeholder {color: @grey;}
-	.placeholder {color: @grey;}
 }
 
 /* Buttons */
@@ -157,4 +152,12 @@ button.button {
 	&:hover {
 		background-color: lighten(@colour, 10%);
 	}
+}
+
+.placeholder(@colour) {
+	:-moz-placeholder {color: @colour;}
+	::-moz-placeholder {color: @colour;}
+	:-ms-input-placeholder {color: @colour;}
+	::-webkit-input-placeholder {color: @colour;}
+	.placeholder {color: @colour;}
 }
