@@ -88,7 +88,10 @@ $(function() {
 	 * Chat
 	 */
 	var Chat = {
-		add: function(data) {
+	  lastMessage: null
+	, lastUser: ''
+	, lastTime: null
+	, add: function(data) {
 			// Generate the code for the avatar (might need to get pending...)
 			var user = Users.get(data.id);
 			var avatar = '';
@@ -121,20 +124,32 @@ $(function() {
 
 			var chat = $('.chat')
 				, wrapper = $('.chat-wrapper')
-				, messageHTML = '\
-				<div class="message user-{0}">\
-					<div class="content">\
-						{1}<div class="meta">{0}&nbsp;&bull;&nbsp;{2}</div>\
-					</div>\
-					<div class="avatar">{3}</div>\
-				</div>'.format(
-						data.id
-					, message
-					, moment(data.time).format('h:mm A')
-					, avatar
-					)
 				, shouldScroll = wrapper.scrollTop()>=chat.height()-wrapper.height();
-			chat.append(messageHTML);
+
+			if (Chat.lastUser != data.id || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
+				var messageHTML = '\
+					<div class="message user-{0}">\
+						<div class="content">\
+							<div class="messages">{1}</div>\
+							<div class="meta">{0}&nbsp;&bull;&nbsp;<span class="time">{2}</span></div>\
+						</div>\
+						<div class="avatar">{3}</div>\
+					</div>'.format(
+						  data.id
+						, message
+						, moment(data.time).format('h:mm A')
+						, avatar
+						)
+				Chat.lastMessage = $(messageHTML);
+				chat.append(Chat.lastMessage);
+			} else {
+				Chat.lastMessage.find('.messages').append(message);
+				Chat.lastMessage.find('.time').html(moment(data.time).format('h:mm A'));
+			}
+
+			Chat.lastUser = data.id;
+			Chat.lastTime = moment(data.time);
+
 			// If there are > 100 messages, start culling from the top
 			while ($('.message').length > 100) {
 				$('.message:first-child').remove();
