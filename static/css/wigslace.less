@@ -50,8 +50,7 @@ h2 small {
 
 /* Shared things */
 .page-width {
-	width: 970px;
-	padding: 0 15px;
+	width: 940px;
 	margin: 0 auto;
 }
 
@@ -162,6 +161,7 @@ button.button {
 .content {
 	height: 100%;
 	padding-top: 40px;
+	position: relative;
 }
 .page-header {
 	margin-bottom: 20px;
@@ -172,7 +172,7 @@ button.button {
 /* Chat page */
 .chat-margin {
 	height: 100%;
-	/*margin-right: 200px;*/
+	margin-right: 200px;
 	position: relative;
 }
 
@@ -187,6 +187,22 @@ button.button {
 }
 
 .chat {position: static;}
+
+.user-list {
+	width: 200px;
+	padding: 0px 5px;
+	position: absolute;
+	right: 0;
+	top: 40px;
+
+	.user {
+		margin: 5px 0;
+	}
+
+	img {
+		vertical-align: middle;
+	}
+}
 
 .message-input {
 	width: 100%;
