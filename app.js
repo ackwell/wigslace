@@ -99,6 +99,7 @@ function getContext(req) {
 	return {
 		siteURL: host
 	, pageURL: host + req.url
+	, page: 'page' + req.url.replace('/', '-')
 	, errors: req.flash('error')
 	, info: req.flash('info')
 	, user: req.user

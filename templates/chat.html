@@ -9,14 +9,16 @@
 {% endblock %}
 
 {% block body %}
-	<div class="chat-margin">
-		<div class="chat-wrapper">
-			<div class="chat"></div>
+	<div class="chat-container">
+		<div class="chat-margin">
+			<div class="chat-wrapper">
+				<div class="chat"></div>
+			</div>
 		</div>
+		<div class="user-list"></div>
+		<form action="javascript:void(0);" class="message-input">
+			<input type="text" name="message" autocomplete="off" placeholder="Message">
+			<button type="submit" class="button">Send</button>
+		</form>
 	</div>
-	<div class="user-list"></div>
-	<form action="javascript:void(0);" class="message-input">
-		<input type="text" name="message" autocomplete="off" placeholder="Message">
-		<button type="submit" class="button">Send</button>
-	</form>
 {% endblock %}

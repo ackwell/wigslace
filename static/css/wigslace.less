@@ -22,8 +22,13 @@ html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;
 }
 
 a {
-	color: @light;
+	.hover(@light, 'color');
+	.hover(@light, 'border-bottom-color');
+	border-bottom: 1px dashed @light;
 	text-decoration: none;
+	&:hover {
+		border-bottom-style: solid;
+	}
 }
 
 /* Headings */
@@ -101,10 +106,11 @@ button.button {
 }
 
 /* Mixins */
-.hover(@colour) {
-	background-color: @colour;
+.hover(@colour, @property: 'background-color') {
+	junk: ~'junk; @{property}: @{colour}';
+	@lighter: lighten(@colour, 10%);
 	&:hover {
-		background-color: lighten(@colour, 10%);
+		junk: ~'junk; @{property}: @{lighter}';
 	}
 }
 
@@ -151,6 +157,7 @@ button.button {
 			a {
 				.hover(@light);
 				height: 40px;
+				border: none;
 				display: block;
 			}
 		}
@@ -161,7 +168,6 @@ button.button {
 .content {
 	height: 100%;
 	padding-top: 40px;
-	position: relative;
 }
 .page-header {
 	margin-bottom: 20px;
@@ -170,6 +176,12 @@ button.button {
 }
 
 /* Chat page */
+.chat-container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
 .chat-margin {
 	height: 100%;
 	margin-right: 200px;
@@ -186,14 +198,53 @@ button.button {
 	overflow-y: auto;
 }
 
-.chat {position: static;}
+.chat {
+	position: static;
+
+	.message {
+		padding: 5px;
+		margin-left: 45px;
+		position: relative;
+
+		.content {
+			display: inline-block;
+			max-width: 100%;
+			min-height: 30px;
+			padding: 5px 0 5px 5px;
+			border-left: 2px solid @grey;
+		}
+
+		p {margin: 0;}
+		p + p {margin-top: 5px;}
+
+		.meta {
+			color: @grey;
+			font-size: 10px;
+		}
+
+		.avatar {
+			padding: 5px 0 5px 5px;
+			overflow: hidden;
+			position: absolute;
+			top: 0;
+			left: -45px;
+		}
+
+		// Special content styles
+		.spoiler {
+			color: black;
+			background: black;
+			&:hover {background: inherit;}
+		}
+	}
+}
 
 .user-list {
 	width: 200px;
 	padding: 0px 5px;
 	position: absolute;
 	right: 0;
-	top: 40px;
+	top: 0;
 
 	.user {
 		margin: 5px 0;
