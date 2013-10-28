@@ -4,18 +4,20 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 /* Some more resets */
 html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;}
 
-/* Clearfix */
-.clear:before, .clear:after {content: "\0020"; display: block; height: 0; overflow: hidden;}
-.clear:after {clear: both;}
-
 /* Colour */
 @light: #34495e;
 @dark: #2c3e50;
 @inverse: white;
 @grey: #bdc3c7;
+@error: #e74c3c;
+@info: #1abc9c;
 
 /* Sizes */
 @font-default: 13px;
+
+/* Clearfix */
+.clear:before, .clear:after {content: "\0020"; display: block; height: 0; overflow: hidden;}
+.clear:after {clear: both;}
 
 /* Global stuff */
 * {
@@ -32,6 +34,10 @@ a {
 	&:hover {
 		border-bottom-style: solid;
 	}
+}
+
+.hide {
+	display: none;
 }
 
 /* Headings */
@@ -65,6 +71,20 @@ h2 small {
 .grey-border {
 	border: 2px solid @grey;
 	border-radius: 6px;
+}
+
+.close.icon {
+	.reset-box;
+	background: none;
+	width: 20px;
+	display: block;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	font-size: 20px;
+	font-weight: bold;
+	line-height: 20px;
+	cursor: pointer;
 }
 
 /* Forms */
@@ -127,12 +147,26 @@ button.button {
 	}
 }
 
-.placeholder(@colour) {
-	:-moz-placeholder {color: @colour;}
-	::-moz-placeholder {color: @colour;}
-	:-ms-input-placeholder {color: @colour;}
-	::-webkit-input-placeholder {color: @colour;}
-	.placeholder {color: @colour;}
+.placeholder(@colour, @opacity: 1) {
+	:-moz-placeholder {color: @colour; .opacity(@opacity)}
+	::-moz-placeholder {color: @colour; .opacity(@opacity)}
+	:-ms-input-placeholder {color: @colour; .opacity(@opacity)}
+	::-webkit-input-placeholder {color: @colour; .opacity(@opacity)}
+	.placeholder {color: @colour; .opacity(@opacity)}
+}
+
+.reset-box() {
+	padding: 0;
+	border: none;
+	margin: 0;
+}
+
+.opacity(@opacity) {
+	@percentage: (@opacity * 100);
+
+	zoom: 1;
+	filter: ~"alpha(opacity=@{percentage})";
+	opacity: @opacity;
 }
 
 /* Navbar */
@@ -174,6 +208,75 @@ button.button {
 				display: block;
 			}
 		}
+	}
+}
+
+/* Alerts / Errors */
+.alert {
+	// This is haxx, it'll need to be changed if ever I want
+	// Full-width alerts :/
+	max-width: 470px;
+	margin: 0 auto;
+
+	padding: 8px 12px 8px 32px;
+	border: 2px solid @grey;
+	border-radius: 6px;
+	margin-bottom: 10px;
+	position: relative;
+	font-size: @font-default;
+
+	.close.icon {
+		position: absolute;
+		top: 5px;
+		left: 5px;
+	}
+}
+
+.alert-colour(@colour) {
+	color: @colour;
+	background: fade(@colour, 25%);
+	border-color: @colour;
+	.close.icon {
+		.hover(@colour, 'color');
+	}
+}
+
+.alert.error {
+	.alert-colour(@error);
+}
+
+.alert.info {
+	.alert-colour(@info);
+}
+
+/* Modals */
+.modal-mask {
+	background-color: fade(@dark, 75%);
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 9000;
+}
+
+.modal {
+	background: white;
+	width: 470px;
+	padding: 10px;
+	margin-left: -235px;
+	border-radius: 6px;
+	position: fixed;
+	top: 10%;
+	left: 50%;
+	z-index: 9001;
+
+	.close.icon {
+		.hover(@dark, 'color');
+	}
+
+	h3 {
+		margin-bottom: 10px;
 	}
 }
 
@@ -275,7 +378,7 @@ button.button {
 	bottom: 0;
 
 	input {
-		margin-bottom: 2px;
+		margin: 2px 0;
 		border-right: none;
 		border-radius: 6px 0 0 6px;
 	}
@@ -285,6 +388,7 @@ button.button {
 		height: 36px;
 		border-radius: 0 6px 6px 0;
 		position: absolute;
+		top: 2px;
 		right: 0;
 	}
 
