@@ -2,53 +2,41 @@
 
 {% block headJS %}
 {% parent %}
-<script src="/js/jquery.form.min.js"></script>
+<script src="/js/edit-plugins.js"></script>
 <script src="/js/edit.js"></script>
 {% endblock %}
 
 {% block pageHeader %}Edit Profile{% endblock %}
-{% block pageSubHeader %}Your account needs more です{% endblock %}
+{% block pageSubHeader %}{{ user.id }}{% endblock %}
 
 {% block content %}
 	<form action="{{ pageURL }}" method="post" enctype="multipart/form-data" class="form-horizontal">
-		<div class="control-group">
-			<label class="control-label">Username</label>
-			<div class="controls">
-				<span class="input-large uneditable-input">{{ user.id }}</span>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">Password</label>
-			<div class="controls">
-				<a href="#password-modal" role="button" class="btn" data-toggle="modal">Change password</a>
-			</div>
-		</div>
-		<div class="control-group">
-			<label class="control-label">Avatar</label>
-			<div class="controls">
-				<div class="fileupload fileupload-new" data-provides="fileupload">
-					<div class="fileupload-new thumbnail" style="width: 200px; height: 200px;">
-						{% if user.avatar %}
-							<img src="{{ user.avatar }}200.png"/>
-						{% endif %}
-					</div>
-					<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 200px; line-height: 20px;"></div>
-					<div>
-					<span class="btn btn-file">
-						<span class="fileupload-new">Select image</span>
-						<span class="fileupload-exists">Change</span>
-						<input type="file" name="avatar"/>
-					</span>
-					<a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+		<fieldset>
+			<div class="clear">
+				<div class="half">
+					<a href="#password-modal" role="button" class="button full-width" data-toggle="modal">Change password</a>
+				</div>
+				<div class="half">
+					<div class="fileupload fileupload-new" data-provides="fileupload">
+						<div class="fileupload-new thumbnail" style="width: 200px; height: 200px;">
+							{% if user.avatar %}
+								<img src="{{ user.avatar }}200.png"/>
+							{% endif %}
+						</div>
+						<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 200px; line-height: 20px;"></div>
+						<div>
+							<span class="button file">
+								<span class="fileupload-new">Change Avatar</span>
+								<span class="fileupload-exists">Edit</span>
+								<input type="file" name="avatar"/>
+							</span>
+							<a href="#" class="button fileupload-exists" data-dismiss="fileupload">Cancel</a>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div class="control-group">
-			<div class="controls">
-				<button type="submit" class="btn btn-primary">Save</button>
-			</div>
-		</div>
+			<button type="submit" class="button primary">Save Changes</button>
+		</fieldset>
 	</form>
 
 	{# Change password modal #}

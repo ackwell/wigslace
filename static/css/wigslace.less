@@ -4,6 +4,10 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 /* Some more resets */
 html, body {height: 100%; margin: 0; padding: 0; border: none; overflow: hidden;}
 
+/* Clearfix */
+.clear:before, .clear:after {content: "\0020"; display: block; height: 0; overflow: hidden;}
+.clear:after {clear: both;}
+
 /* Colour */
 @light: #34495e;
 @dark: #2c3e50;
@@ -46,7 +50,7 @@ h5 {font-size: 29px;}
 h6 {font-size: 24px;}
 
 h2 small {
-	color: fade(@dark, 30%);;
+	color: fade(@dark, 30%);
 	display: block;
 	font-size: 22px;
 	font-weight: normal;
@@ -58,12 +62,16 @@ h2 small {
 	margin: 0 auto;
 }
 
+.grey-border {
+	border: 2px solid @grey;
+	border-radius: 6px;
+}
+
 /* Forms */
 fieldset {
 	width: 470px;
 	padding: 10px;
-	border: 2px solid @grey;
-	border-radius: 6px;
+	.grey-border;
 	margin: 0 auto;
 }
 
@@ -92,6 +100,7 @@ input {
 	display: inline-block;
 	font-size: @font-default;
 	cursor: pointer;
+	&:hover {border: none;}
 }
 button.button {
 	padding: 4px 10px;
@@ -102,6 +111,11 @@ button.button {
 
 .button.primary {
 	.hover(@dark);
+}
+
+.button.full-width {
+	width: 100%;
+	text-align: center;
 }
 
 /* Mixins */
@@ -277,4 +291,15 @@ button.button {
 	input:focus + button {
 		.hover(@dark);
 	}
+}
+
+/* Edit profile page */
+@import 'fileupload.less';
+
+.half {
+	width: 49%;
+	float: left;
+}
+.half + .half {
+	float: right;
 }
