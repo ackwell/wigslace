@@ -1,0 +1,50 @@
+/* Forms */
+fieldset {
+	width: 470px;
+	padding: 10px;
+	.grey-border;
+	margin: 0 auto;
+}
+
+input {
+	background: white;
+	width: 100%;
+	padding: 8px 12px;
+	border: 2px solid @grey;
+	border-radius: 6px;
+	margin-bottom: 10px;
+	.placeholder(@grey);
+
+	&:focus {
+		border-color: @light;
+		outline: none;
+	}
+}
+
+/* Buttons */
+.button {
+	color: @inverse;
+	.hover(@grey);
+	padding: 5px 10px;
+	border: none;
+	border-radius: 4px;
+	display: inline-block;
+	font-size: @font-default;
+	cursor: pointer;
+	&:hover {border: none;}
+}
+button.button {
+	padding: 4px 10px;
+}
+.button + .button {
+	margin-left: 10px;
+}
+
+.button.primary {
+	.hover(@dark);
+}
+
+.button.full-width {
+	width: 100%;
+	text-align: center;
+}

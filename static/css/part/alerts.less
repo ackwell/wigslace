@@ -1,0 +1,37 @@
+/* Alerts / Errors */
+.alert {
+	// This is haxx, it'll need to be changed if ever I want
+	// Full-width alerts :/
+	max-width: 470px;
+	margin: 0 auto;
+
+	padding: 8px 12px 8px 32px;
+	border: 2px solid @grey;
+	border-radius: 6px;
+	margin-bottom: 10px;
+	position: relative;
+	font-size: @font-default;
+
+	.close.icon {
+		position: absolute;
+		top: 5px;
+		left: 5px;
+	}
+}
+
+.alert-colour(@colour) {
+	color: @colour;
+	background: fade(@colour, 25%);
+	border-color: @colour;
+	.close.icon {
+		.hover(@colour, 'color');
+	}
+}
+
+.alert.error {
+	.alert-colour(@error);
+}
+
+.alert.info {
+	.alert-colour(@info);
+}

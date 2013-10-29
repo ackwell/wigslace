@@ -162,7 +162,6 @@ $(function() {
 	, shouldScroll: true
 	, justAutoScrolled: false
 	, autoScroll: function() {
-			console.log(Chat.shouldScroll);
 			if (Chat.shouldScroll) {
 				Chat.justAutoScrolled = true;
 				$('.chat-wrapper').scrollTop($('.chat').height());

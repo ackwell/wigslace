@@ -1,0 +1,30 @@
+/* Mixins */
+.hover(@colour, @property: 'background-color') {
+	junk: ~'junk; @{property}: @{colour}';
+	@lighter: lighten(@colour, 10%);
+	&:hover {
+		junk: ~'junk; @{property}: @{lighter}';
+	}
+}
+
+.placeholder(@colour, @opacity: 1) {
+	:-moz-placeholder {color: @colour; .opacity(@opacity)}
+	::-moz-placeholder {color: @colour; .opacity(@opacity)}
+	:-ms-input-placeholder {color: @colour; .opacity(@opacity)}
+	::-webkit-input-placeholder {color: @colour; .opacity(@opacity)}
+	.placeholder {color: @colour; .opacity(@opacity)}
+}
+
+.reset-box() {
+	padding: 0;
+	border: none;
+	margin: 0;
+}
+
+.opacity(@opacity) {
+	@percentage: (@opacity * 100);
+
+	zoom: 1;
+	filter: ~"alpha(opacity=@{percentage})";
+	opacity: @opacity;
+}
