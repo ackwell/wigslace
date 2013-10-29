@@ -40,4 +40,13 @@ $(function() {
 		});
 		return false;
 	});
+
+	// Edit avatar button redirection
+	$('.button.file').click(function(event) {
+		// prevents duplicate click event
+		var input = $(this).find('input')[0];
+		if (input == event.target) { return; }
+		
+		input.click();
+	});
 });
