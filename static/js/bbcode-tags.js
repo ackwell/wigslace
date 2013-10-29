@@ -66,7 +66,7 @@ function YouTubeBBCode() {
 	this.isValidParent = function(settings, parent) { return true; }
 	this.escape = function(settings, content) { return PHPC.htmlspecialchars(content); }
 	this.open = function(settings, argument, closingCode) { 
-		return '<iframe width="640" height="360" src="//www.youtube.com/embed/'+argument+'" frameborder="0" allowfullscreen></iframe>';
+		return '<div class="youtube"><iframe src="//www.youtube.com/embed/'+argument+'" frameborder="0" allowfullscreen></iframe><div>';
 	}
 	this.close = function(settings, argument, closingCode) { return ''; }
 }
