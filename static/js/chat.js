@@ -103,28 +103,8 @@ $(function() {
 				          </span>'.format(data.id);
 			}
 
-			var message = data.message
-
-			// RAINBOWS MAKE THE WORLD GO ROUND
-			var rainbow = false; // ;_;
-			if (message.indexOf('/rainbow') == 0) {
-				rainbow = true;
-				message = message.replace('/rainbow', '').trim();
-			}
-
-			// Format the message. BBcode parses into markdown first
-			message = bbcode.format(message);
-			message = marked(message);
-
-			if (rainbow) { // Need to use jQuery here :/
-				var tempMsg = $(message);
-				tempMsg.rainbowize();
-				message = tempMsg[0].outerHTML;
-			}
-
-			var chat = $('.chat')
-				, wrapper = $('.chat-wrapper')
-				, shouldScroll = wrapper.scrollTop()>=chat.height()-wrapper.height();
+			var message = Chat.formatMessage(data.message)
+				, chat = $('.chat');
 
 			if (Chat.lastUser != data.id || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
 				var messageHTML = '\
@@ -154,12 +134,61 @@ $(function() {
 			while ($('.message').length > 100) {
 				$('.message:first-child').remove();
 			}
-			// Scroll the box only if the user is at the bottom - needs fix for images etc
-			if (shouldScroll) {
-				wrapper.scrollTop(chat.height());
+
+			Chat.autoScroll();
+		}
+
+	, formatMessage: function(message) {
+			// RAINBOWS MAKE THE WORLD GO ROUND
+			var rainbow = false; // ;_;
+			if (message.indexOf('/rainbow') == 0) {
+				rainbow = true;
+				message = message.replace('/rainbow', '').trim();
+			}
+
+			// Format the message. BBcode parses into markdown first
+			message = bbcode.format(message);
+			message = marked(message);
+
+			if (rainbow) { // Need to use jQuery here :/
+				var tempMsg = $(message);
+				tempMsg.rainbowize();
+				message = tempMsg[0].outerHTML;
+			}
+
+			return message
+		}
+
+	, shouldScroll: true
+	, justAutoScrolled: false
+	, autoScroll: function() {
+			console.log(Chat.shouldScroll);
+			if (Chat.shouldScroll) {
+				Chat.justAutoScrolled = true;
+				$('.chat-wrapper').scrollTop($('.chat').height());
 			}
 		}
 	}
+
+	// Automatically scroll to bottom every .5s, unless they have scrolled away
+	// (fixes bug with images and so on)
+	setInterval(Chat.autoScroll, 500);
+	$('.chat-wrapper').scroll(function() {
+		// If this was fired because of .scrollTop, ignore
+		if (Chat.justAutoScrolled) {
+			Chat.justAutoScrolled = false;
+			return;
+		}
+
+		var shouldScroll = false
+			, wrapper = $(this)
+			, chat = $('.chat');
+
+		if (wrapper.scrollTop() >= chat.height()-wrapper.height()) {
+			shouldScroll = true;
+		}
+		Chat.shouldScroll = shouldScroll;
+	});
 
 	/*
 	 * Socket.io
@@ -183,7 +212,7 @@ $(function() {
 		}
 	});
 
-	// server sent us userdata
+	// Server sent us userdata
 	socket.on('userData', function(userData) {
 		Users.dataRecieved(userData);
 	});
