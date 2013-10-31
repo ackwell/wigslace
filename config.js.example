@@ -7,11 +7,11 @@ var config = {
 , sessions: {
 		key: 'secret key'
 	}
-	// Admin account login details. username is not editable (must be 'admin')
-, admin: {
-		email: 'admin@wigslace'
-	, password: 'password'
-	}
+	// Auto-generate user details. bot is required for apbot
+, users: [
+	  {id: 'admin', email: 'admin@wigslace', password: 'password'}
+	, {id: 'bot', email: 'bot@wigslace', password: 'password'}
+	]
 	// Email connection details
 , smtp: {
 		host: 'smtp.example.com'

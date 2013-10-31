@@ -66,15 +66,19 @@ passport.use(new LocalStrategy(Users.strategy));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Set up an administrator account
-Users.get('admin', function(err, user) {
-	if (!user) {
-		console.log('No administrator found, generating account.');
-		Users.register('admin', config.admin.email, config.admin.password, function(err, success, message) {
-			if (!err && success) { console.log('Admin generated sucessfully'); }
+// Set up config'd users. Have to use silly function to scope it.
+for (var i = 0; i < config.users.length; i++) {
+	(function(details) {
+		Users.get(details.id, function(err, user) {
+			if (!user) {
+				console.log('User '+details.id+' not found. Generating.');
+				Users.register(details.id, details.email, details.password, function(err, success, message) {
+					if (!err && success) { console.log(details.id+' was generated successfully.'); }
+				});
+			}
 		});
-	}
-});
+	})(config.users[i]);
+}
 
 /*
  * Other middleware and handlers
@@ -317,7 +321,7 @@ app.get('/login', function(req, res) {
 	else { res.render('login.html', getContext(req)); }
 });
 app.post('/login', passport.authenticate('local', {
-	successRedirect: '/'
+  successRedirect: '/'
 , failureRedirect: '/login'
 , failureFlash: true
 }));
@@ -335,6 +339,7 @@ var socketio = require('socket.io')
 	, io = socketio.listen(server)
 	// Chat model, currently only used to store online users
 	, Chat = require('./chat')(db)
+	, apbot = require('./apbot');
 
 // Config
 io.set('log level', 2);
@@ -347,7 +352,7 @@ if (config.server.production) {
 
 // Set up socket authorisation and session sharing
 io.set('authorization', passio.authorize({
-	cookieParser: express.cookieParser 
+  cookieParser: express.cookieParser 
 , key: app.get('cookieSessionKey')
 , secret: app.get('secretKey')
 , store: sessionStore
@@ -395,13 +400,20 @@ io.sockets.on('connection', function(socket) {
 		if (!message.length) { return; }
 
 		var data = {
-			id: user.id
+		  id: user.id
 		, message: message
 		, time: new Date
 		}
 
 		Chat.log(data, function(err, logEntry) {
 			io.sockets.emit('message', data);
+
+			var botResponse = apbot(data);
+			if (botResponse) {
+				Chat.log(botResponse, function(err, logEntry) {
+					io.sockets.emit('message', botResponse);
+				});
+			}
 		});
 	});
 
