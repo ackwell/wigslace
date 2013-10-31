@@ -32,15 +32,20 @@
 		.content {
 			display: inline-block;
 			width: 100%;
-			min-height: 30px;
-			padding: 5px 0 5px 5px;
+			min-height: 40px;
+			padding: 0;
+			padding-left: 5px;
 			border-left: 2px solid @grey;
 
 			img {max-width: 100%;}
 		}
 
-		p {margin: 0;}
-		p + p {margin-top: 5px;}
+		.messages {
+
+			> * {
+				margin-bottom: 5px;
+			}
+		}
 
 		.meta {
 			color: @grey;
