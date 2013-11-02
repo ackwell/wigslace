@@ -1,30 +1,40 @@
 
-// Apbot config. I'll move this to the db to allow
-// runtime editing eventually. But lazy.
-var config = {
-  '^!yesno': ['Yes.', 'No.']
-};
+module.exports = function(db) {
+	/*
+	 * Schema
+	 */
+	var botReplySchema = db.Schema({
+	  search: String
+	, reply: String
+	});
 
-// Takes an incoming message data object, then
-// apbottifies it. That's a techincal term.
-module.exports = function(data) {
-	var responses = [];
-	for (var key in config) {
-		// If the message matches the regex, it's a possible response
-		if (data.message.search(key) != -1) {
-			responses = responses.concat(config[key]);
-		}
+	// Takes an incoming message data object, then
+	// apbottifies it. That's a techincal term.
+	botReplySchema.statics.getReply = function(data, done) {
+		// Get all the bot replies form the db
+		var model = db.model('BotReply');
+		model.find(function(err, replies) {
+			var responses = [];
+			for (var i = 0; i < replies.length; i++) {
+				var reply = replies[i];
+				if (data.message.search(reply.search) != -1) {
+					responses.push(reply.reply);
+				}
+			}
+
+			if (responses.length == 0) {
+				return done(null, false);
+			}
+
+			var result = responses[Math.floor(Math.random() * responses.length)];
+			return done(null, {
+			  id: 'bot'
+			, message: result
+			, time: new Date
+			});
+		});
 	}
 
-	if (responses.length == 0) {
-		return false;
-	}
-	
-	// Pick a response from those avaliable at random
-	var result = responses[Math.floor(Math.random() * responses.length)];
-	return {
-	  id: 'bot'
-	, message: result
-	, time: new Date
-	};
+	return model = db.model('BotReply', botReplySchema);
 }
+

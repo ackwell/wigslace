@@ -339,7 +339,7 @@ var socketio = require('socket.io')
 	, io = socketio.listen(server)
 	// Chat model, currently only used to store online users
 	, Chat = require('./chat')(db)
-	, apbot = require('./apbot');
+	, apbot = require('./apbot')(db);
 
 // Config
 io.set('log level', 2);
@@ -385,7 +385,7 @@ io.sockets.on('connection', function(socket) {
 	socket.on('getUser', function(userID) {
 		Users.get(userID, function(err, userData) {
 			if (err) { return console.log(err); }
-			if (!userData) { return console.log('Client requested details for a non-existant user'); }
+			if (!userData) { return console.log('Client requested details for non-existant user '+userID); }
 			// Not gonna send all the clients each other's emails...
 			delete userData.email;
 			socket.emit('userData', userData);
@@ -408,12 +408,13 @@ io.sockets.on('connection', function(socket) {
 		Chat.log(data, function(err, logEntry) {
 			io.sockets.emit('message', data);
 
-			var botResponse = apbot(data);
-			if (botResponse) {
-				Chat.log(botResponse, function(err, logEntry) {
-					io.sockets.emit('message', botResponse);
-				});
-			}
+			var botResponse = apbot.getReply(data, function(err, botResponse) {
+				if (botResponse) {
+					Chat.log(botResponse, function(err, logEntry) {
+						io.sockets.emit('message', botResponse);
+					});
+				}
+			});
 		});
 	});
 
