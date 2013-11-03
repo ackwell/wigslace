@@ -10,8 +10,7 @@ module.exports = function(db) {
 	, message: String
 	, time: Date
 	}, {capped: { // Limit the length so I don't have to prune it myself
-		size: 1048576 // generous max size of 1MB
-	, max: 100
+		size: 5242880 // generous max size of 5MB
 	}});
 
 	var onlineUsersSchema = db.Schema({
@@ -32,7 +31,15 @@ module.exports = function(db) {
 
 	chatLogSchema.statics.getLog = function(done) {
 		var model = db.model('Chat');
-		model.find(done);
+		model
+			.find()
+			.sort('-time')
+			.limit(100)
+			.exec(function(err, results) {
+				// Needed to reverse sort to get the latest 100, so need to reverse that again here.
+				results.reverse();
+				done(err, results);
+			});
 	}
 
 
