@@ -9,10 +9,28 @@ var config = require('./config')
 var app = express()
   , server = http.createServer(app);
 
-// Test - catchall route so i can possibly dynamically run routes
-var routes = requireDir('./routes', {recurse: true});
-app.get('/*', function(req, res) {
-	console.log(routes);
+// Wigslace object
+// This is the core 'class' of the server
+function Wigslace(app) {
+	this.app = app;
+	this.routes = requireDir('./routes', {recurse: true});
+}
+
+// Routes requests based on the  url path
+Wigslace.prototype.routeRequest = function(req, res) {
+	// If the request is to '/', redirect to the index controller
+	// TODO
+
+	var path = req.path.split('/');
+	// Skip first index, always empty
+	// TODO
+}
+
+// Instantiate the core class
+var wl = new Wigslace(app);
+
+// Catch all requests to the server and route them via the Wigslace object
+app.all('/*', function(req, res) {
 	res.send(req.path);
 });
 
