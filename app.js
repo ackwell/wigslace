@@ -9,13 +9,12 @@ var config = require('./config')
 var app = express()
   , server = http.createServer(app);
 
-
 // Instantiate the core class
-var wl = new Wigslace(app);
+global.wigslace = new Wigslace(app);
 
 // Catch all requests to the server and route them via the Wigslace object
 app.all('/*', function(req, res) {
-	wl.routeRequest(req, res);
+	wigslace.routeRequest(req, res);
 });
 
 // Start the server

@@ -1,16 +1,35 @@
 
-var requireDir = require('require-dir')
+var config = require('./config')
+  , mongoose = require('mongoose')
+  , requireDir = require('require-dir');
 
 // Wigslace object
 // This is the core 'class' of the server
 function Wigslace(app) {
 	this.app = app;
+
+	this.config = config;
 	this.routes = requireDir('./routes', {recurse: true});
-	// Debug
-	console.log(this.routes);
+
+	this.setUpDatabase();
 }
 
-// Routes requests based on the  url path
+// Load the database, require the modules, as set them up.
+Wigslace.prototype.setUpDatabase = function() {
+	// Connect to the DB
+	this.db = mongoose;
+	this.db.connect(this.config.server.database);
+
+	// Pull in all the models
+	this.models = requireDir('./models');
+
+	// Instanciate all the models
+	for (var key in this.models) {
+		this.models[key] = this.models[key](this.db);
+	}
+}
+
+// Route requests based on the request's path
 Wigslace.prototype.routeRequest = function(req, res) {
 	// If the request was not a GET, append _(type) to the path
 	var path = req.path;
