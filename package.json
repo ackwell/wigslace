@@ -1,0 +1,11 @@
+{
+  "name": "wigslace"
+, "description": "Instant chat shoutbox"
+, "version": "2.0.0"
+, "private": true
+, "main": "app.js"
+, "dependencies": {
+	  "express": ">= 3.4.5 < 4"
+	, "require-dir": "0.1.0"
+  }
+}
