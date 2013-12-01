@@ -11,8 +11,9 @@ var app = express()
 
 // Instantiate the core class
 global.wigslace = new Wigslace(app);
+wigslace.setUp();
 
-// Catch any ramianing requests, and 404 them.
+// Catch any remianing requests, and 404 them.
 app.all('/*', function(req, res) {
 	wigslace.throw404(req, res);
 });

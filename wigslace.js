@@ -1,16 +1,41 @@
 
 var config = require('./config')
+  , connectFlash = require('connect-flash')
+  , connectMongo = require('connect-mongo')
+  , express = require('express')
+  , less = require('less-middleware')
   , mongoose = require('mongoose')
-  , requireDir = require('require-dir');
+  , requireDir = require('require-dir')
+  , swig = require('swig');
 
 // Wigslace object
 // This is the core 'class' of the server
 function Wigslace(app) {
 	this.app = app;
 	this.config = config;
+}
 
+// Set up the various bits and pieces of the server
+Wigslace.prototype.setUp = function() {
+	this.setUpTemplating();
 	this.setUpDatabase();
-	this.setUpRoutes()
+	this.setUpSessions();
+	this.setUpRoutes();
+}
+
+// Set up templating engine
+Wigslace.prototype.setUpTemplating = function() {
+	// Swig init
+	this.app.engine('html', swig.renderFile);
+	this.app.set('view engine', 'html');
+	this.app.set('views', __dirname + '/templates');
+	swig.setDefaults({cache: config.server.production});
+
+	// LESS init
+	this.app.use(less({
+	  src: __dirname + '/static'
+	, compress: true
+	}));
 }
 
 // Load the database, require the modules, as set them up.
@@ -27,8 +52,29 @@ Wigslace.prototype.setUpDatabase = function() {
 	}
 }
 
-// Load the routes directory as an object, then recurse to generate routes
+// Set up session handling
+Wigslace.prototype.setUpSessions = function() {
+	var MongoStore = connectMongo(express)
+	  , sessionStore = new MongoStore({mongoose_connection: mongoose.connections[0]});
+
+	this.app.set('secretKey', config.sessions.key);
+	this.app.set('cookieSessionKey', 'sid');
+
+	this.app.use(express.cookieParser(this.app.get('secretKey')));
+	this.app.use(express.bodyParser());
+	this.app.use(express.session({
+	  key: this.app.get('cookieSessionKey')
+	, store: sessionStore
+	}));
+	this.app.use(connectFlash());
+}
+
+// Set up the server's routing
 Wigslace.prototype.setUpRoutes = function() {
+	// Handle static files
+	this.app.use(express.static(__dirname + '/static'));
+
+	// Dynamically set up routes
 	this.routes = requireDir('./routes', {recurse: true});
 	this.recurseRoutes('/', this.routes);
 }
