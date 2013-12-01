@@ -85,10 +85,10 @@ Wigslace.prototype.recurseRoutes = function(path, route) {
 	for (var key in route) {
 		// Grab the URL segment we'll be using (index is blank)
 		var segment = key;
-		var split = segment.split('|');
+		var split = segment.split('$');
 		if (split[0] === 'index') {
 			split[0] = '';
-			segment = split.join('|')
+			segment = split.join('$')
 		}
 
 		// If the route is a function, add it to the route and gtfo

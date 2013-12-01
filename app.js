@@ -9,7 +9,7 @@ var config = require('./config')
 var app = express()
   , server = http.createServer(app);
 
-// Instantiate the core class
+// Instantiate the core class. Setup is seperate to allow access to wigslace global
 global.wigslace = new Wigslace(app);
 wigslace.setUp();
 

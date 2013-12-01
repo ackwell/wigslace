@@ -12,6 +12,7 @@ function User(db) {
 	this.setUpSMTP();
 	this.setUpSchemas();
 	this.setUpInitialUsers();
+	this.setUpPassport();
 }
 
 // Set up the email sender
@@ -60,6 +61,24 @@ User.prototype.setUpInitialUsers = function() {
 			})
 		})(wigslace.config.users[i]);
 	}
+}
+
+// Set up the passportjs athentication system
+User.prototype.setUpPassport = function() {
+	var self = this;
+
+	// Passport config
+	passport.serializeUser(function(user, done) {
+		done(null, user.id);
+	});
+	passport.deserializeUser(function(id, done) {
+		self.get(id, done);
+	});
+	passport.use(new LocalStrategy(this.strategy));
+
+	// Tell the app to use it
+	wigslace.app.use(passport.initialize());
+	wigslace.app.use(passport.session());
 }
 
 // Register a new user
