@@ -1,14 +1,25 @@
 
 // Requires
 var bcrypt = require('bcrypt')
+  , emailjs = require('emailjs')
   , passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
+  , LocalStrategy = require('passport-local').Strategy
+  , randomstring = require('randomstring');
 
 function User(db) {
 	this.db = db;
 
+	this.setUpSMTP();
 	this.setUpSchemas();
 	this.setUpInitialUsers();
+}
+
+// Set up the email sender
+User.prototype.setUpSMTP = function() {
+	var config = wigslace.config.smtp;
+	config.ssl = true;
+
+	this.smtp = emailjs.server.connect(config);
 }
 
 User.prototype.setUpSchemas = function() {
@@ -102,7 +113,46 @@ User.prototype.registerRaw = function(data, done) {
 
 // Password recovery
 User.prototype.recover = function(email, returnURL, done) {
-	// NEED TO DO EMAIL SHIT HERE AND STUFF
+	var self = this;
+	// Get the user with the specified email. If none exists, chuck hissy.
+	this.User.findOne({email: email}, function(err, user) {
+		if (err) { return done(err); }
+		if (!user) { return done(null, false, "No user with that email."); }
+
+		// Generate a random string for the token, and form the recovery entry
+		var token = randomstring.generate()
+		  , newRecovery = new self.Recovery({
+		  	  id: user.id
+		  	, token: token
+		  	, created: new Date
+		    });
+
+		// Save the recovery to the database
+		newRecovery.save(function(err, newRecovery) {
+			if (err) { return done(err); }
+
+			// Render the email template
+			var content = wigslace.app.render('email/recover.html', {
+			  id: user.id
+			, link: returnURL + token
+			});
+
+			// Send email
+			self.smtp.send({
+			  text: content
+			, from: 'Wigslace <'+wigslace.config.smtp.user+'>'
+			, to: user.id + ' <'+email+'>'
+			, subject: 'Wigslace - Recover your account ('+user.id+').'
+			, attachment: [{
+				  data: content
+				, alternative: true
+			  }]
+			}, function(err, message) {
+				if (err) { return done(err); }
+				return done(null, true);
+			});
+		});
+	});
 }
 
 // Return the user id of the given recovery token
@@ -154,6 +204,7 @@ User.prototype.strategy = function(username, password, done) {
 	});
 }
 
+// Compare the given password to that of the speficied user
 User.prototype.checkPassword = function(username, password, done) {
 	this.User.findOne({id: username}).lean().exec(function(err, user) {
 		if (err) { return done(err); }
