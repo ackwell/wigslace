@@ -1,0 +1,13 @@
+{% extends 'layout.html' %}
+
+{% block pageHeader %}Recover Password{% endblock %}
+{% block pageSubHeader %}おっと！{% endblock %}
+
+{% block content %}
+	<form action="{{ pageURL }}" method="post">
+		<fieldset class="half-width">
+			<input type="text" name="email" placeholder="Email"/>
+			<button type="submit" class="button primary">Submit</button>
+		</fieldset>
+	</form>
+{% endblock %}

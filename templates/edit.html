@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+{% block headJS %}
+{% parent %}
+<script src="/js/edit-plugins.js"></script>
+<script src="/js/edit.js"></script>
+{% endblock %}
+
+{% block pageHeader %}Edit Profile{% endblock %}
+{% block pageSubHeader %}{{ user.id }}{% endblock %}
+
+{% block content %}
+	<form action="{{ pageURL }}" method="post" enctype="multipart/form-data" class="form-horizontal">
+		<fieldset class="half-width">
+			<div class="clear">
+				<div class="half">
+					<a href="#password-modal" role="button" class="button full-width open-modal">Change password</a>
+				</div>
+
+				<div class="half">
+					<div class="fileupload fileupload-new" data-provides="fileupload">
+						<div class="fileupload-new thumbnail" style="width: 200px; height: 200px;">
+							{% if user.avatar %}
+								<img src="{{ user.avatar }}200.png"/>
+							{% endif %}
+						</div>
+						<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 200px; line-height: 20px;"></div>
+						<div>
+							<span class="button file">
+								<span class="fileupload-new">Change Avatar</span>
+								<span class="fileupload-exists">Edit</span>
+								<input type="file" name="avatar"/>
+							</span>
+							<a href="#" class="button fileupload-exists" data-dismiss="fileupload">Cancel</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<button type="submit" class="button primary">Save Changes</button>
+		</fieldset>
+	</form>
+
+	{# Change password modal #}
+	<div id="password-modal" class="modal hide" role="dialog">
+		<button type="button" class="close icon">&times;</button>
+		<h3>Change Password</h3>
+
+		<form action="{{ siteURL }}/change-password" method="post">
+			<input type="password" name="password_original" placeholder="Old Password"/>
+			<input type="password" name="password" placeholder="New Password"/>
+			<input type="password" name="password_confirm" placeholder="Confirm New Password"/>
+			<button type="submit" class="button primary">Save</button>
+			<button type="button" class="button close">Cancel</button>
+		</form>
+	</div>
+	<div class="modal-mask hide"></div>
+{% endblock %}

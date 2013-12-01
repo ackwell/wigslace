@@ -150,24 +150,26 @@ User.prototype.recover = function(email, returnURL, done) {
 			if (err) { return done(err); }
 
 			// Render the email template
-			var content = wigslace.app.render('email/recover.html', {
+			wigslace.app.render('email/recover.html', {
 			  id: user.id
 			, link: returnURL + token
-			});
-
-			// Send email
-			self.smtp.send({
-			  text: content
-			, from: 'Wigslace <'+wigslace.config.smtp.user+'>'
-			, to: user.id + ' <'+email+'>'
-			, subject: 'Wigslace - Recover your account ('+user.id+').'
-			, attachment: [{
-				  data: content
-				, alternative: true
-			  }]
-			}, function(err, message) {
+			}, function(err, html) {
 				if (err) { return done(err); }
-				return done(null, true);
+
+				// Send email
+				self.smtp.send({
+				  text: html
+				, from: 'Wigslace <'+wigslace.config.smtp.user+'>'
+				, to: user.id + ' <'+email+'>'
+				, subject: 'Wigslace - Recover your account ('+user.id+').'
+				, attachment: [{
+					  data: html
+					, alternative: true
+				  }]
+				}, function(err, message) {
+					if (err) { return done(err); }
+					return done(null, true);
+				});
 			});
 		});
 	});
@@ -175,7 +177,7 @@ User.prototype.recover = function(email, returnURL, done) {
 
 // Return the user id of the given recovery token
 User.prototype.recoverToID = function(token, done) {
-	this.Recovery.fineOne({token: token}, function(err, recovery) {
+	this.Recovery.findOne({token: token}, function(err, recovery) {
 		if (err) { return done(err); }
 		if (!recovery) { return done(null, false); }
 		return done(null, recovery.id);
