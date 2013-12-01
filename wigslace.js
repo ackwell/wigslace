@@ -1,4 +1,5 @@
 
+// Requires
 var config = require('./config')
   , connectFlash = require('connect-flash')
   , connectMongo = require('connect-mongo')
@@ -48,7 +49,7 @@ Wigslace.prototype.setUpDatabase = function() {
 
 	// Instanciate all the models
 	for (var key in this.models) {
-		this.models[key] = this.models[key](mongoose);
+		this.models[key] = new this.models[key](mongoose);
 	}
 }
 
