@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>{% block title %}AnimePaper Shoutbox{% endblock %}</title>
+
+	<meta name="viewport" content="width=device-width, user-scalable=false;">
+
+	{% block headCSS %}
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		<link href="/css/wigslace.css" rel="stylesheet">
+	{% endblock %}
+
+	{% block headJS %}
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>!window.jQuery && document.write('<script src="/js/jquery.min.js"><\/script>');</script>
+		<script src="/js/plugins.js"></script>
+		<script src="/js/script.js"></script>
+	{% endblock %}
+</head>
+<body class="{{ page }}">
+	{% include 'navbar.html' %}
+
+	{# Main body #}
+	<div class="page-width content">
+		{% block body %}
+			<div class="page-header">
+				<h2>
+					{% block pageHeader %}{% endblock %}
+					<small>{% block pageSubHeader %}{% endblock %}</small>
+				</h1>
+			</div>
+
+			{# Alerts #}
+			{% for error in errors %}
+				<div class="alert error">
+					<button type="button" class="close icon">&times;</button>
+					<strong>Error!</strong> {{ error }}
+				</div>
+			{% endfor %}
+			{% for message in info %}
+				<div class="alert info">
+					<button type="button" class="close icon">&times;</button>
+					{{ message }}
+				</div>
+			{% endfor %}
+
+			{% block content %}
+			{% endblock %}
+		{% endblock %}
+	</div>
+</body>
+</html>

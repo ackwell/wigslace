@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block pageHeader %}Login{% endblock %}
+{% block pageSubHeader %}お帰りなさい～{% endblock %}
+
+{% block content %}
+	<form action="{{ pageURL }}" method="post">
+		<fieldset class="half-width">
+			<input type="text" name="username" placeholder="Username"/>
+			<input type="password" name="password" placeholder="Password"/>
+			<button type="submit" class="button primary">Login</button>
+			<a href="/auth/recover" class="button">Forgot password?</a>
+		</fieldset>
+	</form>
+{% endblock %}

@@ -1,4 +1,6 @@
 
+// Site home page
 module.exports = function(req, res) {
-	res.send('This is the index.')
+	if (req.user) { return res.redirect('/chat'); }
+	res.render('index.html', wigslace.getContext(req));
 }

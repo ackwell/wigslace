@@ -1,0 +1,17 @@
+<div class="navbar">
+	<div class="page-width">
+		<h1 class="title" ><a href="/">Wigslace</a></h1>
+
+		<ul class="menu">
+			{% if !user %}
+				<li><a href="/auth/login">Login</a></li>
+				<li><a href="/auth/register">Register</a></li>
+			{% else %}
+				<li class="greeting"><p>Hello, {{ user.id }}</p></li>
+				<li><a href="/chat">Chat</a></li>
+				<li><a href="/edit">Edit Profile</a></li>
+				<li><a href="/logout">Logout</a></li>
+			{% endif %}
+		</ul>
+	</div>
+</div>

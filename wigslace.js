@@ -112,6 +112,20 @@ Wigslace.prototype.recurseRoutes = function(path, route) {
 	}
 }
 
+// Creates a context object from the request
+Wigslace.prototype.getContext = function(req) {
+	var host = req.protocol + '://' + req.get('host');
+
+	return {
+	  siteURL: host
+	, pageURL: host + req.url
+	, page: 'page' + req.url.replace('/', '-')
+	, errors: req.flash('error')
+	, info: req.flash('info')
+	, user: req.user
+	};
+}
+
 // Throws an HTTP404 error to the client.
 Wigslace.prototype.throw404 = function(req, res) {
 	res.send(404, "This is a 404");
