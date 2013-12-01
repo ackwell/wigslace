@@ -21,6 +21,7 @@ Wigslace.prototype.setUp = function() {
 	this.setUpTemplating();
 	this.setUpDatabase();
 	this.setUpSessions();
+	this.models.user.setUpPassport();
 	this.setUpRoutes();
 }
 

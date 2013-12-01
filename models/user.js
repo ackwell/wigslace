@@ -12,7 +12,6 @@ function User(db) {
 	this.setUpSMTP();
 	this.setUpSchemas();
 	this.setUpInitialUsers();
-	this.setUpPassport();
 }
 
 // Set up the email sender
@@ -211,8 +210,9 @@ User.prototype.edit = function(data) {
 
 // Passport.js LocalStrategy implementation
 User.prototype.strategy = function(username, password, done) {
-	var self = this;
-	this.checkPassword(username, password, function(err, correct, data) {
+	// Stupid shennanigans because LocalStrategy overwrites the 'this' context
+	var self = wigslace.models.user;
+	self.checkPassword(username, password, function(err, correct, data) {
 		if (correct) { return self.get(username, done); }
 
 		var message = "Incorrect password.";
