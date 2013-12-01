@@ -12,9 +12,9 @@ var app = express()
 // Instantiate the core class
 global.wigslace = new Wigslace(app);
 
-// Catch all requests to the server and route them via the Wigslace object
+// Catch any ramianing requests, and 404 them.
 app.all('/*', function(req, res) {
-	wigslace.routeRequest(req, res);
+	wigslace.throw404(req, res);
 });
 
 // Start the server

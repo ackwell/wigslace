@@ -7,62 +7,62 @@ var config = require('./config')
 // This is the core 'class' of the server
 function Wigslace(app) {
 	this.app = app;
-
 	this.config = config;
-	this.routes = requireDir('./routes', {recurse: true});
 
 	this.setUpDatabase();
+	this.setUpRoutes()
 }
 
 // Load the database, require the modules, as set them up.
 Wigslace.prototype.setUpDatabase = function() {
 	// Connect to the DB
-	this.db = mongoose;
-	this.db.connect(this.config.server.database);
+	mongoose.connect(this.config.server.database);
 
 	// Pull in all the models
 	this.models = requireDir('./models');
 
 	// Instanciate all the models
 	for (var key in this.models) {
-		this.models[key] = this.models[key](this.db);
+		this.models[key] = this.models[key](mongoose);
 	}
 }
 
-// Route requests based on the request's path
-Wigslace.prototype.routeRequest = function(req, res) {
-	// If the request was not a GET, append _(type) to the path
-	var path = req.path;
-	if (req.route.method !== 'get') { path += '_' + req.route.method; }
+// Load the routes directory as an object, then recurse to generate routes
+Wigslace.prototype.setUpRoutes = function() {
+	this.routes = requireDir('./routes', {recurse: true});
+	this.recurseRoutes('/', this.routes);
+}
 
-	var path = path.split('/')
-	  , route = this.routes;
-
-	// Skip first index, always empty
-	for (var i = 1; i < path.length; i++) {
-		var segment = path[i];
-
-		// If the segment is blank, try to access 'index' instead
-		if (segment.split('_')[0] === '') { segment = 'index' +  segment; }
-
-		// If the current route doesn't have that segment avaliable, 404.
-		if (!route.hasOwnProperty(segment)) {
-			this.throw404(req, res);
-			return;
+Wigslace.prototype.recurseRoutes = function(path, route) {
+	// Loop over current tier of routes
+	for (var key in route) {
+		// Grab the URL segment we'll be using (index is blank)
+		var segment = key;
+		var split = segment.split('|');
+		if (split[0] === 'index') {
+			split[0] = '';
+			segment = split.join('|')
 		}
 
-		// Has an avaliable route, so filter down
-		route = route[segment];
-	}
+		// If the route is a function, add it to the route and gtfo
+		if (typeof route[key] === 'function') {
+			var method = 'get';
 
-	// If the final route isn't a function, 404.
-	if (typeof route !== 'function') {
-		this.throw404(req, res);
-		return;
-	}
+			// Check if a request method was given
+			if (split.length == 2) {
+				segment = split[0];
+				method = split[1];
+			}
 
-	// We finally got there - pass the request/response on to the route function.
-	route(req, res);
+			this.app[method](path+segment, route[key]);
+			console.log('Added '+method+' route: '+path+segment);
+
+			continue;
+		}
+
+		// Otherwise, it's another level of routing, recurse.
+		this.recurseRoutes(path+segment+'/', route[key]);
+	}
 }
 
 // Throws an HTTP404 error to the client.
