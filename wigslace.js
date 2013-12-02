@@ -57,7 +57,7 @@ Wigslace.prototype.setUpDatabase = function() {
 // Set up session handling
 Wigslace.prototype.setUpSessions = function() {
 	var MongoStore = connectMongo(express)
-	  , sessionStore = new MongoStore({mongoose_connection: mongoose.connections[0]});
+	this.sessionStore = new MongoStore({mongoose_connection: mongoose.connections[0]});
 
 	this.app.set('secretKey', config.sessions.key);
 	this.app.set('cookieSessionKey', 'sid');
@@ -66,7 +66,7 @@ Wigslace.prototype.setUpSessions = function() {
 	this.app.use(express.bodyParser());
 	this.app.use(express.session({
 	  key: this.app.get('cookieSessionKey')
-	, store: sessionStore
+	, store: this.sessionStore
 	}));
 	this.app.use(connectFlash());
 }
