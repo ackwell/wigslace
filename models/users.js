@@ -104,6 +104,8 @@ User.prototype.registerRaw = function(data, done) {
 		avatar = avatars.members[Math.floor(Math.random()*avatars.members.length)];
 	}
 
+	data.avatar = avatar;
+
 	// Search for users with the same id/email
 	this.User.findOne({$or: [{id: data.id}, {email: data.email}]}, function(err, user) {
 		if (err) { return done(err); }

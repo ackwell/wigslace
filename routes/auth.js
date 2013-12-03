@@ -40,10 +40,10 @@ module.exports = {
 
 		// Attempt to register the user
 		post.id = post.username;
-		wigslace.models.user.registerRaw(post, function(err, success, message) {
+		wigslace.models.users.registerRaw(post, function(err, success, message) {
 			if (success) {
 				// Grab user data, log them in, redirect to index
-				wigslace.models.user.get(post.username, function(err, user) {
+				wigslace.models.users.get(post.username, function(err, user) {
 					req.login(user, function(err) {
 						res.redirect('/');
 					});
@@ -119,7 +119,7 @@ module.exports = {
 			return;
 		}
 
-		wigslace.models.user.recover(req.body.email, url, function(err, success, message) {
+		wigslace.models.users.recover(req.body.email, url, function(err, success, message) {
 			if (!success) {
 				req.flash('error', message);
 				res.redirect('/auth/recover');
@@ -131,7 +131,7 @@ module.exports = {
   }
 
 , 'recover/:token': function(req, res) {
-  	wigslace.models.user.recoverToID(req.params.token, function(err, id) {
+  	wigslace.models.users.recoverToID(req.params.token, function(err, id) {
 			if (!id) {
 				req.flash('error', 'Invalid recovery token.');
 				res.redirect('/auth/recover');
@@ -144,7 +144,7 @@ module.exports = {
 
 , 'recover/:token$post': function(req, res) {
   	var token = req.params.token;
-		wigslace.models.user.recoverToID(token, function(err, id) {
+		wigslace.models.users.recoverToID(token, function(err, id) {
 			if (!id) {
 				req.flash('error', 'Invalid recovery token.');
 				res.redirect('/auth/recover');
@@ -157,9 +157,9 @@ module.exports = {
 					return;
 				}
 
-				wigslace.models.user.changePassword(id, req.body.password, function(err, success) {
+				wigslace.models.users.changePassword(id, req.body.password, function(err, success) {
 					if (success) {
-						wigslace.models.user.deleteRecovery(token);
+						wigslace.models.users.deleteRecovery(token);
 						req.flash('info', 'Password changed successfully.');
 						res.redirect('/auth/login');
 					} else {
