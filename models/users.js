@@ -25,7 +25,7 @@ User.prototype.setUpSMTP = function() {
 User.prototype.setUpSchemas = function() {
 	// Schema for user accounts
 	var userSchema = this.db.Schema({
-	  id: String
+	  name: String
 	, email: String
 	, hash: String
 	, avatar: String
@@ -34,7 +34,7 @@ User.prototype.setUpSchemas = function() {
 
 	// Schema for account recovery keys
 	var recoverySchema = this.db.Schema({
-	  id: String
+	  user: {type: this.db.Schema.ObjectId, ref: 'User'}
 	, token: String
 	, created: {type: Date, expires: '12h'}
 	});
@@ -50,11 +50,11 @@ User.prototype.setUpInitialUsers = function() {
 	for (var i = 0; i < wigslace.config.users.length; i++) {
 		// Function only used to scope because lol async
 		(function(details) {
-			self.get(details.id, function(err, user) {
+			self.get(details.name, function(err, user) {
 				if (!user) {
-					console.log('User ' + details.id + ' not found. Generating');
+					console.log('User ' + details.name + ' not found. Generating');
 					self.registerRaw(details, function(err, success, message) {
-						if (!err && success) { console.log(details.id + ' has been generated.'); }
+						if (!err && success) { console.log(details.name + ' has been generated.'); }
 					});
 				}
 			})
@@ -68,10 +68,10 @@ User.prototype.setUpPassport = function() {
 
 	// Passport config
 	passport.serializeUser(function(user, done) {
-		done(null, user.id);
+		done(null, user.name);
 	});
-	passport.deserializeUser(function(id, done) {
-		self.get(id, done);
+	passport.deserializeUser(function(name, done) {
+		self.get(name, done);
 	});
 	passport.use(new LocalStrategy(this.strategy));
 
@@ -83,7 +83,7 @@ User.prototype.setUpPassport = function() {
 // Register a new user
 User.prototype.register = function(username, email, password, done) {
 	var data = {
-	  id: username
+	  name: username
 	, email: email
 	, password: password
 	}
@@ -98,22 +98,22 @@ User.prototype.registerRaw = function(data, done) {
 	  , avatars = wigslace.config.defaults.avatars
 	  , self = this;
 
-	if (avatars.hasOwnProperty(data.id)) {
-		avatar = avatars[data.id];
+	if (avatars.hasOwnProperty(data.name)) {
+		avatar = avatars[data.name];
 	} else {
 		avatar = avatars.members[Math.floor(Math.random()*avatars.members.length)];
 	}
 
 	data.avatar = avatar;
 
-	// Search for users with the same id/email
-	this.User.findOne({$or: [{id: data.id}, {email: data.email}]}, function(err, user) {
+	// Search for users with the same name/email
+	this.User.findOne({$or: [{name: data.name}, {email: data.email}]}, function(err, user) {
 		if (err) { return done(err); }
 
 		// If the user already exists, chuck a hissy
 		if (user) {
-			if (user.id == username) { return done(null, false, "That username is already taken."); }
-			else if (user.email == email) { return done(null, false, "That email has already been used."); }
+			if (user.name == data.username) { return done(null, false, "That username is already taken."); }
+			else if (user.email == data.email) { return done(null, false, "That email has already been used."); }
 		}
 
 		// Create a password hash
@@ -142,7 +142,7 @@ User.prototype.recover = function(email, returnURL, done) {
 		// Generate a random string for the token, and form the recovery entry
 		var token = randomstring.generate()
 		  , newRecovery = new self.Recovery({
-		  	  id: user.id
+		  	  user: user._id
 		  	, token: token
 		  	, created: new Date
 		    });
@@ -153,7 +153,7 @@ User.prototype.recover = function(email, returnURL, done) {
 
 			// Render the email template
 			wigslace.app.render('email/recover.html', {
-			  id: user.id
+			  id: user.name
 			, link: returnURL + token
 			}, function(err, html) {
 				if (err) { return done(err); }
@@ -162,8 +162,8 @@ User.prototype.recover = function(email, returnURL, done) {
 				self.smtp.send({
 				  text: html
 				, from: 'Wigslace <'+wigslace.config.smtp.user+'>'
-				, to: user.id + ' <'+email+'>'
-				, subject: 'Wigslace - Recover your account ('+user.id+').'
+				, to: user.name + ' <'+email+'>'
+				, subject: 'Wigslace - Recover your account ('+user.name+').'
 				, attachment: [{
 					  data: html
 					, alternative: true
@@ -177,13 +177,16 @@ User.prototype.recover = function(email, returnURL, done) {
 	});
 }
 
-// Return the user id of the given recovery token
+// Return the user name of the given recovery token
 User.prototype.recoverToID = function(token, done) {
-	this.Recovery.findOne({token: token}, function(err, recovery) {
-		if (err) { return done(err); }
-		if (!recovery) { return done(null, false); }
-		return done(null, recovery.id);
-	})
+	this.Recovery
+		.findOne({token: token})
+		.populate('user')
+		.exec(function(err, recovery) {
+			if (err) { return done(err); }
+			if (!recovery) { return done(null, false); }
+			return done(null, recovery.user.name);
+		})
 }
 
 // Delete a recovery token
@@ -192,22 +195,22 @@ User.prototype.deleteRecovery = function(token) {
 }
 
 // Change the password for the specified ID
-User.prototype.changePassword = function(id, password, done) {
+User.prototype.changePassword = function(name, password, done) {
 	var self = this;
 	bcrypt.hash(password, 5, function(err, hash) {
 		if (err) { return done(err); }
-		self.User.findOneAndUpdate({id: id}, {hash: hash}, done);
+		self.User.findOneAndUpdate({name: name}, {hash: hash}, done);
 	});
 }
 
 // Modify user data
 User.prototype.edit = function(data) {
-	var id = data.id;
+	var name = data.name;
 
-	delete user.id;
+	delete user.name;
 	delete user.hash; // Just in case it got in there somehow
 
-	this.User.findOneAndUpdate({id: id}, user, function(err) {
+	this.User.findOneAndUpdate({name: name}, user, function(err) {
 		if (err) { console.log(err); }
 	});
 }
@@ -215,7 +218,7 @@ User.prototype.edit = function(data) {
 // Passport.js LocalStrategy implementation
 User.prototype.strategy = function(username, password, done) {
 	// Stupid shennanigans because LocalStrategy overwrites the 'this' context
-	var self = wigslace.models.user;
+	var self = wigslace.models.users;
 	self.checkPassword(username, password, function(err, correct, data) {
 		if (correct) { return self.get(username, done); }
 
@@ -229,7 +232,7 @@ User.prototype.strategy = function(username, password, done) {
 
 // Compare the given password to that of the speficied user
 User.prototype.checkPassword = function(username, password, done) {
-	this.User.findOne({id: username}).lean().exec(function(err, user) {
+	this.User.findOne({name: username}).lean().exec(function(err, user) {
 		if (err) { return done(err); }
 		if (!user) { return done(null, false, {message: "That user does not exist."}); }
 		bcrypt.compare(password, user.hash, done);
@@ -237,14 +240,19 @@ User.prototype.checkPassword = function(username, password, done) {
 }
 
 // Get the user data for the specified ID
-User.prototype.get = function(id, done) {
-	this.User.findOne({id: id}).lean().exec(function(err, user) {
+User.prototype.get = function(name, done) {
+	return this.getBy('name', name, done);
+}
+
+User.prototype.getBy = function(key, value, done) {
+	var search = {};
+	search[key] = value;
+	this.User.findOne(search).lean().exec(function(err, user) {
 		if (err) { return done(err); }
 
 		// Get rid of mongo stuff
 		if (user) {
 			delete user.hash;
-			delete user._id;
 			delete user.__v;
 		}
 		return done(null, user);

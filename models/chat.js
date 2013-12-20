@@ -12,7 +12,7 @@ function Chat(db) {
 Chat.prototype.setUpSchemas = function() {
 	// Schema for the chatlog
 	var chatLogSchema = this.db.Schema({
-	  id: String
+	  user: {type: this.db.Schema.ObjectId, ref: 'User'}
 	, message: String
 	, time: Date
 	}, {capped: {
@@ -23,7 +23,7 @@ Chat.prototype.setUpSchemas = function() {
 
 	// Schema for keeping track of currently active users
 	var onlineUsersSchema = this.db.Schema({
-	  id: {type: String, unique: true}
+	  user: {type: this.db.Schema.ObjectId, ref: 'User', unique: true}
 	, clients: Number
 	});
 	this.OnlineUsers = this.db.model('OnlineUsers', onlineUsersSchema);
@@ -55,15 +55,16 @@ Chat.prototype.getLog = function(n, done) {
 }
 
 // Set a user as being currently online
-Chat.prototype.addUser = function(id, done) {
+Chat.prototype.addUser = function(user, done) {
 	// Attempt to set the user as being a new join.
-	var toAdd = new this.OnlineUsers({id: id, clients: 1});
+	var self = this
+	  , toAdd = new self.OnlineUsers({user: user, clients: 1});
 	toAdd.save(function(err, onlineUser) {
 		if (err) {
 			if (err.code == 11000) {
 				// If it was error 11000, they already exist in the db.
 				// Increment their client count instead.
-				this.OnlineUsers.update({id: id}, {$inc: {clients: 1}}, function(err) {
+				self.OnlineUsers.update({user: user}, {$inc: {clients: 1}}, function(err) {
 					if (err) { return done(err); }
 					return done(null, true);
 				});
@@ -79,8 +80,8 @@ Chat.prototype.addUser = function(id, done) {
 }
 
 // A client has disconnected. Decrease user's client no, and remove if none left.
-Chat.prototype.removeUser = function(id, done) {
-	this.OnlineUsers.findOneAndUpdate({id: id}, {$inc: {clients: -1}}, function(err, onlineUser) {
+Chat.prototype.removeUser = function(user, done) {
+	this.OnlineUsers.findOneAndUpdate({user: user}, {$inc: {clients: -1}}, function(err, onlineUser) {
 		// An offline user disconnected? Let's just pretend they disconnected anyway.
 		if (!onlineUser) { return done(null, true); }
 
@@ -98,13 +99,16 @@ Chat.prototype.removeUser = function(id, done) {
 }
 
 // Check if the specified user is online
-Chat.prototype.checkUserOnline = function(id, done) {
-	this.OnlineUsers.findOne({id: id}, done);
+Chat.prototype.checkUserOnline = function(user, done) {
+	this.OnlineUsers.findOne({user: user}, done);
 }
 
 // Get the full list of online users
 Chat.prototype.getAllUsers = function(done) {
-	this.OnlineUsers.find(done);
+	this.OnlineUsers
+		.find()
+		.populate('user')
+		.exec(done);
 }
 
 module.exports = Chat;

@@ -31,15 +31,15 @@ function setUpSocketIO(server) {
 		var user = socket.handshake.user;
 
 		// Add the user to the onlineusers list, respond with a ready
-		wigslace.models.chat.addUser(user.id, function(err, success) {
+		wigslace.models.chat.addUser(user._id, function(err, success) {
 			socket.emit('ready');
 			// Tell the other clients that the new client has joined
-			socket.broadcast.emit('join', user.id);
+			socket.broadcast.emit('join', user._id);
 			// Send the new client a join for each current user
 			wigslace.models.chat.getAllUsers(function(err, users) {
 				users.forEach(function(user) {
 					// Only send ID, client will request additional data later
-					socket.emit('join', user.id);
+					socket.emit('join', user.user._id);
 				});
 			});
 		});
@@ -51,7 +51,7 @@ function setUpSocketIO(server) {
 
 		// If the client requests data on a user, send it through
 		socket.on('getUser', function(userID) {
-			wigslace.models.users.get(userID, function(err, userData) {
+			wigslace.models.users.getBy('_id', userID, function(err, userData) {
 				if (err) { return console.log(err); }
 				if (!userData) { return console.log('Client requested details for non-existant user '+userID); }
 
@@ -72,7 +72,7 @@ function setUpSocketIO(server) {
 
 			// Form the message object to save/send
 			var data = {
-			  id: user.id
+			  user: user._id
 			, message: message
 			, time: new Date
 			}
@@ -87,8 +87,8 @@ function setUpSocketIO(server) {
 
 		// Client disconnected. Decrease client count and send part if required
 		socket.on('disconnect', function() {
-			wigslace.models.chat.removeUser(user.id, function(err, shouldPart) {
-				if (shouldPart) { socket.broadcast.emit('part', user.id); }
+			wigslace.models.chat.removeUser(user.name, function(err, shouldPart) {
+				if (shouldPart) { socket.broadcast.emit('part', user._id); }
 			})
 		})
 	});

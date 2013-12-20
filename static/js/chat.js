@@ -31,6 +31,7 @@ $(function() {
 		// Returns a user object, or requests from server and returns null
 	, get: function(userID) {
 			if (!Users.users.hasOwnProperty(userID)) {
+				console.log(userID);
 				socket.emit('getUser', userID);
 				return null;
 			}
@@ -39,9 +40,10 @@ $(function() {
 
 		// Server has sent us data about a user :D
 	, dataRecieved: function(user) {
-			Users.users[user.id] = user;
+		console.log(user);
+			Users.users[user._id] = user;
 			// Look through the dom for any pending stuff and sort it out
-			$('.pending-'+user.id).each(function() {
+			$('.pending-'+user._id).each(function() {
 				var template = $(this).find('.template').html();
 				for (key in user) {
 					var re = new RegExp('\\{'+key+'\\}', 'g');
@@ -57,20 +59,26 @@ $(function() {
 
 			Users.online.push(userID);
 			
-			var user = Users.get(userID);
-			var avatar = '';
+			var user = Users.get(userID)
+			  , entry = '';
 			if (user) {
-				if (user.avatar) { avatar = '<img src="{0}20.png">'.format(user.avatar); }
+				console.log(user);
+				avatar = user.avatar? '<img src="{0}20.png">'.format(user.avatar) : '';
+				name = user.name? user.name : '';
+				entry = '{0}&nbsp;{1}'.format(avatar, name);
 			} else {
-				avatar = '<span class="pending-{0}"><img src="/default/avatars/placeholder/20.png">\
-				            <span class="template hide"><img src="{avatar}20.png"></span>\
-				          </span>'.format(userID);
+				entry = '<span class="pending-{0}">\
+					<img src="/default/avatars/placeholder/20.png">&nbsp;Pending\
+					<span class="template hide">\
+						<img src="{avatar}20.png">&nbsp{name}\
+					</span>\
+				</span>'.format(userID);
 			}
 
 			$('.user-list').append(
-				'<div class="user user-{0}">{1}&nbsp;{0}</div>'.format(
+				'<div class="user user-{0}">{1}</div>'.format(
 					userID
-				, avatar
+				, entry
 				)
 			);
 		}
@@ -93,32 +101,36 @@ $(function() {
 	, lastTime: null
 	, add: function(data) {
 			// Generate the code for the avatar (might need to get pending...)
-			var user = Users.get(data.id);
-			var avatar = '';
+			var user = Users.get(data.user)
+			  , avatar = ''
+			  , name = '';
 			if (user) {
 				if (user.avatar) { avatar = '<img src="{0}40.png">'.format(user.avatar); }
+				if (user.name) { name = user.name; }
 			} else {
 				avatar = '<span class="pending-{0}"><img src="/default/avatars/placeholder/40.png">\
-				            <span class="template hide"><img src="{avatar}40.png"></span>\
-				          </span>'.format(data.id);
+					<span class="template hide"><img src="{avatar}40.png"></span>\
+				</span>'.format(data.user);
+				name = '<span class="pending-{0}">Pending<span class="template hide">{name}</span></span>'.format(data.user);
 			}
 
 			var message = Chat.formatMessage(data.message)
 				, chat = $('.chat');
 
-			if (Chat.lastUser != data.id || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
+			if (Chat.lastUser != data.user || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
 				var messageHTML = '\
 					<div class="message user-{0}">\
 						<div class="content">\
 							<div class="messages">{1}</div>\
-							<div class="meta">{0}&nbsp;&bull;&nbsp;<span class="time">{2}</span></div>\
+							<div class="meta">{4}&nbsp;&bull;&nbsp;<span class="time">{2}</span></div>\
 						</div>\
 						<div class="avatar">{3}</div>\
 					</div>'.format(
-						  data.id
+						  data.user
 						, message
 						, moment(data.time).format('h:mm A')
 						, avatar
+						, name
 						)
 				Chat.lastMessage = $(messageHTML);
 				chat.append(Chat.lastMessage);
@@ -127,7 +139,7 @@ $(function() {
 				Chat.lastMessage.find('.time').html(moment(data.time).format('h:mm A'));
 			}
 
-			Chat.lastUser = data.id;
+			Chat.lastUser = data.user;
 			Chat.lastTime = moment(data.time);
 
 			// If there are > 100 messages, start culling from the top

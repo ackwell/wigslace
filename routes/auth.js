@@ -39,7 +39,7 @@ module.exports = {
 		}
 
 		// Attempt to register the user
-		post.id = post.username;
+		post.name = post.username;
 		wigslace.models.users.registerRaw(post, function(err, success, message) {
 			if (success) {
 				// Grab user data, log them in, redirect to index
@@ -91,11 +91,11 @@ module.exports = {
 			return res.send({type: 'error', message: e.message});
 		}
 
-		wigslace.model.user.checkPassword(req.user.id, post.password_original, function(err, correct) {
+		wigslace.model.user.checkPassword(req.user.name, post.password_original, function(err, correct) {
 			if (err) { return res.send({type: 'error', message: 'Something went wrong checking your password.'}); }
 			if (!correct) { return res.send({type: 'error', message: 'Your old password is incorrect.'}); }
 			// All the checks have passed, we can finally change their password
-			wigslace.model.user.changePassword(req.user.id, post.password, function(err) {
+			wigslace.model.user.changePassword(req.user.name, post.password, function(err) {
 				if (err) { return res.send({type: 'error', message: 'Something went wrong saving your new password.'}); }
 				res.send({type: 'success', message: 'New password set.'});
 			});
@@ -150,7 +150,9 @@ module.exports = {
 				res.redirect('/auth/recover');
 			} else {
 				// Make sure the password & confirm match
-				try { validator.check(req.body.password, 'Please enter the same password twice.').equals(req.body.password_confirm); }
+				try {
+					validator.check(req.body.password, 'Please enter the same password twice.').equals(req.body.password_confirm);
+				}
 				catch (e) {
 					req.flash('error', e.message);
 					res.redirect('/auth/recover');
