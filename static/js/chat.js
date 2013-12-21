@@ -31,7 +31,6 @@ $(function() {
 		// Returns a user object, or requests from server and returns null
 	, get: function(userID) {
 			if (!Users.users.hasOwnProperty(userID)) {
-				console.log(userID);
 				socket.emit('getUser', userID);
 				return null;
 			}
@@ -40,7 +39,6 @@ $(function() {
 
 		// Server has sent us data about a user :D
 	, dataRecieved: function(user) {
-		console.log(user);
 			Users.users[user._id] = user;
 			// Look through the dom for any pending stuff and sort it out
 			$('.pending-'+user._id).each(function() {
@@ -62,7 +60,6 @@ $(function() {
 			var user = Users.get(userID)
 			  , entry = '';
 			if (user) {
-				console.log(user);
 				avatar = user.avatar? '<img src="{0}20.png">'.format(user.avatar) : '';
 				name = user.name? user.name : '';
 				entry = '{0}&nbsp;{1}'.format(avatar, name);
@@ -114,8 +111,7 @@ $(function() {
 				name = '<span class="pending-{0}">Pending<span class="template hide">{name}</span></span>'.format(data.user);
 			}
 
-			var message = Chat.formatMessage(data.message)
-				, chat = $('.chat');
+			var chat = $('.chat');
 
 			if (Chat.lastUser != data.user || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
 				var messageHTML = '\
@@ -127,7 +123,7 @@ $(function() {
 						<div class="avatar">{3}</div>\
 					</div>'.format(
 						  data.user
-						, message
+						, data.message
 						, moment(data.time).format('h:mm A')
 						, avatar
 						, name
@@ -135,7 +131,7 @@ $(function() {
 				Chat.lastMessage = $(messageHTML);
 				chat.append(Chat.lastMessage);
 			} else {
-				Chat.lastMessage.find('.messages').append(message);
+				Chat.lastMessage.find('.messages').append(data.message);
 				Chat.lastMessage.find('.time').html(moment(data.time).format('h:mm A'));
 			}
 

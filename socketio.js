@@ -2,6 +2,7 @@
 // Requires
 var config = require('./config')
   , express = require('express')
+  , marked = require('marked')
   , passio = require('passport.socketio')
   , socketio = require('socket.io')
   , validator = require('validator');
@@ -55,7 +56,6 @@ function setUpSocketIO(server) {
 				if (err) { return console.log(err); }
 				if (!userData) { return console.log('Client requested details for non-existant user '+userID); }
 
-				console.log(userData);
 				delete userData.email;
 				socket.emit('userData', userData);
 			});
@@ -69,6 +69,9 @@ function setUpSocketIO(server) {
 			// Trim whitespace, ignore if empty
 			message = message.trim();
 			if (!message.length) { return; }
+
+			// Do the formatting server side because fukkit
+			message = marked(message);
 
 			// Form the message object to save/send
 			var data = {
