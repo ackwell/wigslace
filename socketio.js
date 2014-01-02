@@ -1,12 +1,16 @@
 
 // Requires
 var bboxed = require('bboxed')
+	, customTags = require('./custom-tags')
   , config = require('./config')
   , express = require('express')
   , marked = require('marked')
   , passio = require('passport.socketio')
   , socketio = require('socket.io')
   , validator = require('validator');
+
+// Add the custom tags to bboxed
+bboxed.addTags(customTags);
 
 function setUpSocketIO(server) {
 	var io = socketio.listen(server);
