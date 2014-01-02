@@ -146,27 +146,6 @@ $(function() {
 			Chat.autoScroll();
 		}
 
-	, formatMessage: function(message) {
-			// RAINBOWS MAKE THE WORLD GO ROUND
-			var rainbow = false; // ;_;
-			if (message.indexOf('/rainbow') == 0) {
-				rainbow = true;
-				message = message.replace('/rainbow', '').trim();
-			}
-
-			// Format the message. BBcode parses into markdown first
-			message = bbcode.format(message);
-			message = marked(message);
-
-			if (rainbow) { // Need to use jQuery here :/
-				var tempMsg = $(message);
-				tempMsg.rainbowize();
-				message = tempMsg[0].outerHTML;
-			}
-
-			return message
-		}
-
 	, shouldScroll: true
 	, justAutoScrolled: false
 	, autoScroll: function() {

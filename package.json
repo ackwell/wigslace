@@ -5,7 +5,8 @@
 , "private": true
 , "main": "app.js"
 , "dependencies": {
-	  "bcrypt": "0.7.7"
+	  "bboxed": "latest"
+	, "bcrypt": "0.7.7"
 	, "connect-flash": "0.1.1"
 	, "connect-mongo": "0.4.0"
 	, "emailjs": "0.3.6"

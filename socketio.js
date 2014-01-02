@@ -1,6 +1,7 @@
 
 // Requires
-var config = require('./config')
+var bboxed = require('bboxed')
+  , config = require('./config')
   , express = require('express')
   , marked = require('marked')
   , passio = require('passport.socketio')
@@ -72,6 +73,7 @@ function setUpSocketIO(server) {
 
 			// Do the formatting server side because fukkit
 			message = marked(message);
+			message = bboxed(message);
 
 			// Form the message object to save/send
 			var data = {
