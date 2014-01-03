@@ -212,26 +212,46 @@ User.prototype.changePassword = function(name, password, done) {
 User.prototype.edit = function(data) {
 	var name = data.name;
 
-	delete user.name;
-	delete user.hash; // Just in case it got in there somehow
+	delete data.name;
+	delete data.hash; // Just in case it got in there somehow
 
-	this.User.findOneAndUpdate({name: name}, user, function(err) {
+	this.User.findOneAndUpdate({name: name}, data, function(err) {
 		if (err) { console.log(err); }
 	});
+}
+
+User.prototype.setPermission = function(username, permission, setting, done) {
+	var data = {};
+	data['permissions.' + permission] = setting;
+	this.User.findOneAndUpdate({name: username}, data, done);
 }
 
 // Passport.js LocalStrategy implementation
 User.prototype.strategy = function(username, password, done) {
 	// Stupid shennanigans because LocalStrategy overwrites the 'this' context
 	var self = wigslace.models.users;
-	self.checkPassword(username, password, function(err, correct, data) {
-		if (correct) { return self.get(username, done); }
 
-		var message = "Incorrect password.";
-		if (data && data.message) {
-			message = data.message;
+	// Check correct login details
+	self.checkPassword(username, password, function(err, correct, data) {
+		if (!correct) {
+			var message = "Incorrect password.";
+			if (data && data.message) {
+				message = data.message;
+			}
+			return done(null, false, {message: message});
 		}
-		return done(null, false, {message: message});
+
+		// Disallow banned people.
+		self.get(username, function(err, user) {
+			if (err) { return done(err); }
+
+			if (!user.permissions.site) {
+				var message = "You have been banned. If you believe this is in error, please contact a moderator.";
+				return done(null, false, {message: message});
+			}
+
+			return done(null, user);
+		});
 	});
 }
 
