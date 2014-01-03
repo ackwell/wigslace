@@ -29,6 +29,11 @@ User.prototype.setUpSchemas = function() {
 	, email: String
 	, hash: String
 	, avatar: String
+	, permissions: {
+		  site: {type: Boolean, default: true}
+		, chat: {type: Boolean, default: true}
+		, admin: {type: Boolean, default: false}
+		}
 	});
 	this.User = this.db.model('User', userSchema);
 

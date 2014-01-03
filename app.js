@@ -17,10 +17,5 @@ wigslace.setUp();
 // Set up Socket.IO
 socketio.setUp(server);
 
-// Catch any remianing requests, and 404 them.
-app.all('/*', function(req, res) {
-	wigslace.throw404(req, res);
-});
-
 // Start the server
 server.listen(config.server.port);

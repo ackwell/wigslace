@@ -79,6 +79,11 @@ Wigslace.prototype.setUpRoutes = function() {
 	// Dynamically set up routes
 	this.routes = requireDir('./routes', {recurse: true});
 	this.recurseRoutes('/', this.routes);
+
+	// Catch any remaining requests, and 404 them.
+	this.app.all('/*', function(req, res) {
+		wigslace.throw404(req, res);
+	});
 }
 
 Wigslace.prototype.recurseRoutes = function(path, route) {
