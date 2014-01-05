@@ -2,7 +2,6 @@
 // Requires
 var bboxed = require('bboxed')
 	, customTags = require('./custom-tags')
-  , config = require('./config')
   , express = require('express')
   , marked = require('marked')
   , passio = require('passport.socketio')
@@ -17,7 +16,7 @@ function setUpSocketIO(server) {
 
 	// Configuration
 	io.set('log level', 2);
-	if (config.server.production) {
+	if (wigslace.config.server.production) {
 		io.enable('browser client minification');
 		io.enable('browser client etag');
 		io.enable('browser client gzip');

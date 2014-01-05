@@ -16,9 +16,7 @@ function User(db) {
 
 // Set up the email sender
 User.prototype.setUpSMTP = function() {
-	var config = wigslace.config.smtp;
-	config.ssl = true;
-
+	var config = wigslace.config.email;
 	this.smtp = emailjs.server.connect(config);
 }
 
@@ -48,11 +46,12 @@ User.prototype.setUpSchemas = function() {
 
 // Save users in the config into the database
 User.prototype.setUpInitialUsers = function() {
-	if (!wigslace.config.users) { return; }
+	var users = wigslace.config.defaults.users;
+	if (!users) { return; }
 
 	var self = this;
 
-	for (var i = 0; i < wigslace.config.users.length; i++) {
+	for (var i = 0; i < users.length; i++) {
 		// Function only used to scope because lol async
 		(function(details) {
 			self.get(details.name, function(err, user) {
@@ -63,7 +62,7 @@ User.prototype.setUpInitialUsers = function() {
 					});
 				}
 			})
-		})(wigslace.config.users[i]);
+		})(users[i]);
 	}
 }
 
@@ -139,6 +138,7 @@ User.prototype.registerRaw = function(data, done) {
 // Password recovery
 User.prototype.recover = function(email, returnURL, done) {
 	var self = this;
+	
 	// Get the user with the specified email. If none exists, chuck hissy.
 	this.User.findOne({email: email}, function(err, user) {
 		if (err) { return done(err); }
@@ -166,7 +166,7 @@ User.prototype.recover = function(email, returnURL, done) {
 				// Send email
 				self.smtp.send({
 				  text: html
-				, from: 'Wigslace <'+wigslace.config.smtp.user+'>'
+				, from: 'Wigslace <'+wigslace.config.email.user+'>'
 				, to: user.name + ' <'+email+'>'
 				, subject: 'Wigslace - Recover your account ('+user.name+').'
 				, attachment: [{
@@ -246,8 +246,7 @@ User.prototype.strategy = function(username, password, done) {
 			if (err) { return done(err); }
 
 			if (!user.permissions.site) {
-				var message = "You have been banned. If you believe this is in error, please contact a moderator.";
-				return done(null, false, {message: message});
+				return done(null, false, {message: "You have been banned."});
 			}
 
 			return done(null, user);

@@ -1,7 +1,6 @@
 
 // Requires
-var config = require('./config')
-  , connectFlash = require('connect-flash')
+var connectFlash = require('connect-flash')
   , connectMongo = require('connect-mongo')
   , express = require('express')
   , less = require('less-middleware')
@@ -13,7 +12,7 @@ var config = require('./config')
 // This is the core 'class' of the server
 function Wigslace(app) {
 	this.app = app;
-	this.config = config;
+	this.config = requireDir('./config');
 }
 
 // Set up the various bits and pieces of the server
@@ -31,7 +30,7 @@ Wigslace.prototype.setUpTemplating = function() {
 	this.app.engine('html', swig.renderFile);
 	this.app.set('view engine', 'html');
 	this.app.set('views', __dirname + '/templates');
-	swig.setDefaults({cache: config.server.production});
+	swig.setDefaults({cache: this.config.server.production});
 
 	// LESS init
 	this.app.use(less({
@@ -59,7 +58,7 @@ Wigslace.prototype.setUpSessions = function() {
 	var MongoStore = connectMongo(express)
 	this.sessionStore = new MongoStore({mongoose_connection: mongoose.connections[0]});
 
-	this.app.set('secretKey', config.sessions.key);
+	this.app.set('secretKey', this.config.sessions.key);
 	this.app.set('cookieSessionKey', 'sid');
 
 	this.app.use(express.cookieParser(this.app.get('secretKey')));

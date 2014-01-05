@@ -1,7 +1,6 @@
 
 // Requires
-var config = require('./config')
-  , express = require('express')
+var express = require('express')
   , http = require('http')
   , socketio = require('./socketio')
   , Wigslace = require('./wigslace');
@@ -18,4 +17,4 @@ wigslace.setUp();
 socketio.setUp(server);
 
 // Start the server
-server.listen(config.server.port);
+server.listen(wigslace.config.server.port);
