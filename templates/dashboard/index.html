@@ -1,0 +1,30 @@
+{% extends '../layout.html' %}
+
+{% block pageHeader %}Dashboard{% endblock %}
+{% block pageSubHeader %}{{ user.name }}{% endblock %}
+
+{% block content %}
+	{# Sidebar #}
+	<div class="sidebar col one">
+		<div class="grey-border">
+			<h3>User</h3>
+			<ul>
+				<li>One</li>
+				<li>Two</li>
+				<li>Three</li>
+			</ul>
+		</div>
+
+		<div class="grey-border">
+			<h3>Admin</h3>
+			<ul>
+				<li>One</li>
+				<li>Two</li>
+				<li>Three</li>
+			</ul>
+		</div>
+	</div>
+
+	{# Main body #}
+	<div class="col three last grey-border">Options</div>
+{% endblock %}

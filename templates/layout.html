@@ -32,18 +32,20 @@
 			</div>
 
 			{# Alerts #}
-			{% for error in errors %}
-				<div class="alert error">
-					<button type="button" class="close icon">&times;</button>
-					<strong>Error!</strong> {{ error }}
-				</div>
-			{% endfor %}
-			{% for message in info %}
-				<div class="alert info">
-					<button type="button" class="close icon">&times;</button>
-					{{ message }}
-				</div>
-			{% endfor %}
+			<div class="alerts">
+				{% for error in errors %}
+					<div class="alert error">
+						<button type="button" class="close icon">&times;</button>
+						<strong>Error!</strong> {{ error }}
+					</div>
+				{% endfor %}
+				{% for message in info %}
+					<div class="alert info">
+						<button type="button" class="close icon">&times;</button>
+						{{ message }}
+					</div>
+				{% endfor %}
+			</div>
 
 			{% block content %}
 			{% endblock %}
