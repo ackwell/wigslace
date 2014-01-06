@@ -1,5 +1,7 @@
 
 module.exports = function(req, res) {
 	if (!req.user) { return res.redirect('/'); }
-	res.render('dashboard/index.html', wigslace.getContext(req));
+	var context = wigslace.getContext(req);
+	context.pjaxContent = 'Loading...'; // Temp
+	res.render('dashboard/index.html', context);
 }

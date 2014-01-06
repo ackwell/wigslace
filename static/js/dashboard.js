@@ -1,6 +1,13 @@
 $(function() {
+	// Load options pages in with pjax
+	$(document).pjax('.sidebar a', '#pjax-container');
+
+
+
+
+
 	// Show/hide the modals
-	$('.open-modal').click(function() {
+	$(document).on('click', '.open-modal', function() {
 		var modal = $($(this).attr('href'))
 			, mask = $('.modal-mask');
 
@@ -9,7 +16,7 @@ $(function() {
 
 		return false;
 	});
-	$('.modal .close').click(function() {
+	$(document).on('click', '.modal .close', function() {
 		var modal = $(this).closest('.modal')
 			, mask = $('.modal-mask');
 

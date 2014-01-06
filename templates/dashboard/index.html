@@ -1,7 +1,13 @@
 {% extends '../layout.html' %}
 
+{% block headJS %}
+{% parent %}
+<script src="/js/dashboard-plugins.js"></script>
+<script src="/js/dashboard.js"></script>
+{% endblock %}
+
 {% block pageHeader %}Dashboard{% endblock %}
-{% block pageSubHeader %}{{ user.name }}{% endblock %}
+{% block pageSubHeader %}<span class="page-title">Loading...</span>{% endblock %}
 
 {% block content %}
 	{# Sidebar #}
@@ -9,9 +15,7 @@
 		<div class="grey-border">
 			<h3>User</h3>
 			<ul>
-				<li>One</li>
-				<li>Two</li>
-				<li>Three</li>
+				<li><a href="/dashboard/user/password">Password</a></li>
 			</ul>
 		</div>
 
@@ -26,5 +30,5 @@
 	</div>
 
 	{# Main body #}
-	<div class="col three last grey-border">Options</div>
+	<div id="pjax-container" class="col three last grey-border">{{ pjaxContent|safe }}</div>
 {% endblock %}
