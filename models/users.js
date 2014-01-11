@@ -72,10 +72,10 @@ User.prototype.setUpPassport = function() {
 
 	// Passport config
 	passport.serializeUser(function(user, done) {
-		done(null, user.name);
+		done(null, user._id);
 	});
 	passport.deserializeUser(function(name, done) {
-		self.get(name, done);
+		self.getBy('_id', name, done);
 	});
 	passport.use(new LocalStrategy(this.strategy));
 
