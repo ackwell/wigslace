@@ -1,5 +1,5 @@
 $(function() {
-	// Set page title to #pjax .title
+	// Set various things on page load/pjax:end
 	var oldClass = '';
 	function setPjaxedValues(newClass) {
 		// Container class
@@ -59,11 +59,8 @@ $(function() {
 
 
 
-
-	
-
 	// Edit avatar button redirection
-	$('.button.file').click(function(event) {
+	$(document).on('click', '.button.file', function(event) {
 		// prevents duplicate click event
 		var input = $(this).find('input')[0];
 		if (input == event.target) { return; }

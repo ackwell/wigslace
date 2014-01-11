@@ -13,6 +13,8 @@ var connectFlash = require('connect-flash')
 function Wigslace(app) {
 	this.app = app;
 	this.config = requireDir('./config');
+
+	this.dir = require('path').dirname(require.main.filename);
 }
 
 // Set up the various bits and pieces of the server
@@ -124,7 +126,7 @@ Wigslace.prototype.getContext = function(req) {
 	return {
 	  siteURL: host
 	, pageURL: host + req.url
-	, page: 'page' + req.url.replace('/', '-')
+	, page: 'page' + req.url.split('/').join('-')
 	, errors: req.flash('error')
 	, info: req.flash('info')
 	, user: req.user

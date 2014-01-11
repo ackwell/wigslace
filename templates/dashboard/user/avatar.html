@@ -1,0 +1,21 @@
+
+<span class="title hide">Change Avatar</span>
+<form action="{{ pageURL }}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	<div class="fileupload fileupload-new" data-provides="fileupload">
+		<div class="fileupload-new thumbnail" style="width: 200px; height: 200px;">
+			{% if user.avatar %}
+				<img src="{{ user.avatar }}200.png"/>
+			{% endif %}
+		</div>
+		<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 200px; max-height: 200px; line-height: 20px;"></div>
+		<div>
+			<span class="button file">
+				<span class="fileupload-new">Change Avatar</span>
+				<span class="fileupload-exists">Edit</span>
+				<input type="file" name="avatar"/>
+			</span>
+			<a href="#" class="button fileupload-exists" data-dismiss="fileupload">Cancel</a>
+		</div>
+	</div>
+	<button type="submit" class="button primary">Save Changes</button>
+</form>

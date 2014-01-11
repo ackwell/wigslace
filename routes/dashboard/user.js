@@ -1,4 +1,7 @@
-var validator = require('validator');
+var fs = require('fs')
+  , gm = require('gm')
+  , mkdirp = require('mkdirp')
+  , validator = require('validator');
 
 module.exports = {
 	':pane': function(req, res) {
@@ -21,7 +24,7 @@ module.exports = {
 	},
 
 	// Change passwords
-	'password$post': function(req, res) {
+	password$post: function(req, res) {
 		if (!req.user) { return res.send({type: 'error', message: 'You are not logged in.'}); }
 		var post = req.body;
 
@@ -45,5 +48,63 @@ module.exports = {
 				res.send({type: 'success', message: 'New password set.'});
 			});
 		});
+	},
+
+	// Change avatar
+	avatar$post: function(req, res) {
+		if (!req.user) { return res.send({type: 'error', message: 'You are not logged in.'}); }
+
+		var avatar = req.files.avatar
+		  , valid = true;
+
+		// Only process avatar if new one uploaded.
+		if (avatar.size) {
+
+			// Make sure it's an image
+			try {
+				validator.check(avatar.type, 'File uploaded was not an image.').contains('image');
+			} catch (e) {
+				req.flash('error', e.message);
+				valid = false;
+			}
+
+			// Limit file size to 4mb (pretty generous really)
+			if (avatar.size/1024/1024 > 4) {
+				req.flash('error', 'File is larger than 4mb.');
+				valid = false;
+			}
+
+			// If it's valid, resize, move into place, save to user object
+			if (valid) {
+				var buf = fs.readFileSync(avatar.path)
+					, path = '/uploads/avatars/'+req.user.name+'/'
+					, sizes = [200, 40, 20];
+
+				sizes.forEach(function(size) {
+					var localPath = wigslace.dir+'/static'+path;
+
+					mkdirp.sync(localPath);
+					gm(buf, avatar.name)
+						.resize(size, size)
+						.write(localPath+size.toString()+'.png', function(err) {
+							if (err) {
+								console.log(err);
+								valid = false;
+							}
+						});
+				});
+
+				if (valid) {
+					req.user.avatar = path;
+					req.flash('info', 'Avatar updated. (Might take a few seconds to be visible site-wide)')
+				} else { req.flash('error', 'Something went wrong.'); }
+			}
+		}
+		// Delete the temp file
+		fs.unlink(avatar.path);
+
+		// Save the (possibly) edited user object back to the db
+		if (valid) { wigslace.models.users.edit(req.user); }
+		res.redirect('/dashboard/'); // This should be replaced with JSON response
 	}
 }

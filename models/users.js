@@ -210,12 +210,12 @@ User.prototype.changePassword = function(name, password, done) {
 
 // Modify user data
 User.prototype.edit = function(data) {
-	var name = data.name;
+	var _id = data._id;
 
-	delete data.name;
+	delete data._id;
 	delete data.hash; // Just in case it got in there somehow
 
-	this.User.findOneAndUpdate({name: name}, data, function(err) {
+	this.User.findOneAndUpdate({_id: _id}, data, function(err) {
 		if (err) { console.log(err); }
 	});
 }

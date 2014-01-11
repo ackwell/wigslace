@@ -1,26 +1,28 @@
 {
-  "name": "wigslace"
-, "description": "Instant chat shoutbox"
-, "version": "2.0.0"
-, "private": true
-, "main": "app.js"
-, "dependencies": {
-	  "bboxed": "latest"
-	, "bcrypt": "0.7.7"
-	, "connect-flash": "0.1.1"
-	, "connect-mongo": "0.4.0"
-	, "emailjs": "0.3.6"
-	, "express": ">= 3.4.5 < 4"
-	, "less-middleware": "0.1.14"
-	, "marked": "0.2.10"
-	, "mongoose": ">= 3.8.1 < 4"
-	, "passport": "0.1.17"
-	, "passport-local": "0.1.6"
-	, "passport.socketio": "2.2.0"
-	, "randomstring": "1.0.2"
-	, "require-dir": "0.1.0"
-	, "socket.io": ">= 0.9 < 1"
-	, "swig": ">= 1.1.0 < 2"
-	, "validator": ">= 2 < 3"
+  "name": "wigslace",
+  "description": "Instant chat shoutbox",
+  "version": "2.0.0",
+  "private": true,
+  "main": "app.js",
+  "dependencies": {
+    "bboxed": "latest",
+    "bcrypt": "0.7.7",
+    "connect-flash": "0.1.1",
+    "connect-mongo": "0.4.0",
+    "emailjs": "0.3.6",
+    "express": ">= 3.4.5 < 4",
+    "gm": "~1.14.2",
+    "less-middleware": "0.1.14",
+    "marked": "~0.3.0",
+    "mkdirp": "~0.3.5",
+    "mongoose": ">= 3.8.1 < 4",
+    "passport": "~0.1.17",
+    "passport-local": "0.1.6",
+    "passport.socketio": "2.2.0",
+    "randomstring": "1.0.2",
+    "require-dir": "0.1.0",
+    "socket.io": ">= 0.9 < 1",
+    "swig": ">= 1.1.0 < 2",
+    "validator": ">= 2 < 3"
   }
 }
