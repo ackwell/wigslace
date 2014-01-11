@@ -1,15 +1,39 @@
 /* Dashboard page */
 
 .sidebar > div {
-  margin-top: 10px;
+	margin-top: 10px;
 
-  &:first-child {
-    margin: 0;
-  }
+	&:first-child {
+		margin: 0;
+	}
 
-  ul {
-    padding: 10px;
-  }
+	// Current is highlighted in feature colour
+	&.current {
+		border-color: @dark;
+		> h3:first-child {
+			background: @dark;
+		}
+	}
+
+	a {
+		padding: 2px 0;
+		border: none;
+		display: block;
+		text-align: center;
+		&:hover {
+			color: @inverse;
+			background: @grey;
+		}
+		&.current {
+			color: @inverse;
+			background: @dark;
+		}
+	}
+}
+
+#pjax {
+	padding: 10px;
+	.grey-border;
 }
 
 // Fileupload.less
@@ -17,90 +41,90 @@
 // ------------------------------------------------
 
 .button.file {
-  overflow: hidden;
-  position: relative;
-  vertical-align: middle;
-  > input {
-    position: absolute;
-    visibility: hidden;
-    width: 0;
-    height: 0;
-  }
+	overflow: hidden;
+	position: relative;
+	vertical-align: middle;
+	> input {
+		position: absolute;
+		visibility: hidden;
+		width: 0;
+		height: 0;
+	}
 }
 
 .fileupload {
-  margin-bottom: 9px;
-  .uneditable-input {
-    display: inline-block;
-    margin-bottom: 0px;
-    vertical-align: middle;
-    cursor: text;
-  }
-  .thumbnail {
-    overflow: hidden;
-    display: inline-block;
-    margin-bottom: 5px;
-    vertical-align: middle;
-    text-align: center;
-    > img {
-      display: inline-block;
-      vertical-align: middle;
-      max-height: 100%;
-    }
-  }
-  .button {
-    vertical-align: middle;
-  }
+	margin-bottom: 9px;
+	.uneditable-input {
+		display: inline-block;
+		margin-bottom: 0px;
+		vertical-align: middle;
+		cursor: text;
+	}
+	.thumbnail {
+		overflow: hidden;
+		display: inline-block;
+		margin-bottom: 5px;
+		vertical-align: middle;
+		text-align: center;
+		> img {
+			display: inline-block;
+			vertical-align: middle;
+			max-height: 100%;
+		}
+	}
+	.button {
+		vertical-align: middle;
+	}
 }
 .fileupload-exists .fileupload-new,
 .fileupload-new .fileupload-exists {
-  display: none;
+	display: none;
 }
 .fileupload-inline .fileupload-controls {
-  display: inline;
+	display: inline;
 }
 
 .thumbnail-borderless .thumbnail {
-  border: none;
-  padding: 0;
+	border: none;
+	padding: 0;
 }
 .fileupload-new.thumbnail-borderless .thumbnail {
-  border: 1px solid #ddd;
+	border: 1px solid #ddd;
 }
 
 .control-group.warning .fileupload {
-  .uneditable-input {
-    color: #a47e3c;
-    border-color: #a47e3c;
-  }
-  .fileupload-preview {
-    color: #a47e3c;
-  }
-  .thumbnail {
-    border-color: #a47e3c;
-  }
+	.uneditable-input {
+		color: #a47e3c;
+		border-color: #a47e3c;
+	}
+	.fileupload-preview {
+		color: #a47e3c;
+	}
+	.thumbnail {
+		border-color: #a47e3c;
+	}
 }
 .control-group.error .fileupload {
-  .uneditable-input {
-    color: #b94a48;
-    border-color: #b94a48;
-  }
-  .fileupload-preview {
-    color: #b94a48;
-  }
-  .thumbnail {
-    border-color: #b94a48;
-  }
+	.uneditable-input {
+		color: #b94a48;
+		border-color: #b94a48;
+	}
+	.fileupload-preview {
+		color: #b94a48;
+	}
+	.thumbnail {
+		border-color: #b94a48;
+	}
 }
 .control-group.success .fileupload {
-  .uneditable-input {
-    color: #468847;
-    border-color: #468847;
-  }
-  .fileupload-preview {
-    color: #468847;
-  }
-  .thumbnail {
-    border-color: #468847;
-  }
+	.uneditable-input {
+		color: #468847;
+		border-color: #468847;
+	}
+	.fileupload-preview {
+		color: #468847;
+	}
+	.thumbnail {
+		border-color: #468847;
+	}
 }
