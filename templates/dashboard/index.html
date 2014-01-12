@@ -20,14 +20,16 @@
 			</ul>
 		</div>
 
-		<div class="grey-border section">
-			<h3>Admin</h3>
-			<ul>
-				<li><a>One</a></li>
-				<li><a>Two</a></li>
-				<li><a>Three</a></li>
-			</ul>
-		</div>
+		{% if user.permissions.admin %}
+			<div class="grey-border section">
+				<h3>Admin</h3>
+				<ul>
+					<li><a>One</a></li>
+					<li><a>Two</a></li>
+					<li><a>Three</a></li>
+				</ul>
+			</div>
+		{% endif %}
 	</div>
 
 	{# Main body #}
