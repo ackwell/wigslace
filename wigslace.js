@@ -136,7 +136,7 @@ Wigslace.prototype.getContext = function(req) {
 
 // Throws an HTTP404 error to the client.
 Wigslace.prototype.throw404 = function(req, res) {
-	res.send(404, "This is a 404");
+	res.send(404, 'This is a 404<br/><a href="/">Go to the home page</a>');
 }
 
 module.exports = Wigslace;
