@@ -95,7 +95,7 @@ function setUpSocketIO(server) {
 
 		// Client disconnected. Decrease client count and send part if required
 		socket.on('disconnect', function() {
-			wigslace.models.chat.removeUser(user.name, function(err, shouldPart) {
+			wigslace.models.chat.removeUser(user._id, function(err, shouldPart) {
 				if (shouldPart) { socket.broadcast.emit('part', user._id); }
 			})
 		})

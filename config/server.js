@@ -1,6 +1,6 @@
 
 module.exports = {
 	port: 8080,
-	database: 'mongodb://localhost/test',
+	database: 'mongodb://localhost/wigslace2',
 	production: false
 };

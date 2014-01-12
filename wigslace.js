@@ -75,6 +75,7 @@ Wigslace.prototype.setUpSessions = function() {
 // Set up the server's routing
 Wigslace.prototype.setUpRoutes = function() {
 	// Handle static files
+	this.app.use(express.favicon(__dirname + '/static/favicon.ico'));
 	this.app.use(express.static(__dirname + '/static'));
 
 	// Dynamically set up routes
