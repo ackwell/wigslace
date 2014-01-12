@@ -32,7 +32,7 @@ Wigslace.prototype.setUpTemplating = function() {
 	this.app.engine('html', swig.renderFile);
 	this.app.set('view engine', 'html');
 	this.app.set('views', __dirname + '/templates');
-	swig.setDefaults({cache: this.config.server.production});
+	swig.setDefaults({cache: this.config.server.production? "memory" : false});
 
 	// LESS init
 	this.app.use(less({
