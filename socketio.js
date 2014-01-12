@@ -4,8 +4,7 @@ var bboxed = require('bboxed')
   , express = require('express')
   , marked = require('marked')
   , passio = require('passport.socketio')
-  , socketio = require('socket.io')
-  , validator = require('validator');
+  , socketio = require('socket.io');
 
 
 function setUpSocketIO(server) {
@@ -68,15 +67,20 @@ function setUpSocketIO(server) {
 		// Process incoming messages, then broadcast to clients
 		socket.on('message', function(message) {
 			// Does the job, but mucks up markdown quotes. Meh.
-			message = validator.sanitize(message).escape();
+			message = message
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;');
 
 			// Trim whitespace, ignore if empty
 			message = message.trim();
 			if (!message.length) { return; }
 
 			// Do the formatting server side because fukkit
-			message = marked(message);
 			message = bboxed(message);
+			message = marked(message);
+
+			// <a> tags need target="_blank"
+			message = message.replace(/<a/g, '<a target="_blank"')
 
 			// Form the message object to save/send
 			var data = {
