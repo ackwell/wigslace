@@ -80,14 +80,14 @@ function setUpSocketIO(server) {
 			message = marked(message);
 
 			// <a> tags need target="_blank"
-			message = message.replace(/<a/g, '<a target="_blank"')
+			message = message.replace(/<a/g, '<a target="_blank"');
 
 			// Form the message object to save/send
 			var data = {
 			  user: user._id
 			, message: message
 			, time: new Date
-			}
+			};
 
 			// Save to db
 			wigslace.models.chat.log(data, function(err, logEntry) {

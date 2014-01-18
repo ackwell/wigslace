@@ -111,7 +111,8 @@ $(function() {
 				name = '<span class="pending-{0}">Pending<span class="template hide">{name}</span></span>'.format(data.user);
 			}
 
-			var chat = $('.chat');
+			var chat = $('.chat')
+			  , lastMessage;
 
 			if (Chat.lastUser != data.user || moment(data.time).subtract('minutes', 5) > Chat.lastTime) {
 				var messageHTML = '\
@@ -130,17 +131,23 @@ $(function() {
 						)
 				Chat.lastMessage = $(messageHTML);
 				chat.append(Chat.lastMessage);
+				lastMessage = chat.children(':last-child').trigger('wl:message:create', [data]);
 			} else {
 				Chat.lastMessage.find('.messages').append(data.message);
 				Chat.lastMessage.find('.time').html(moment(data.time).format('h:mm A'));
+				lastMessage = chat.children(':last-child').trigger('wl:message:append', [data]);
 			}
+
+			lastMessage.trigger('wl:message:new', [data]);
 
 			Chat.lastUser = data.user;
 			Chat.lastTime = moment(data.time);
 
 			// If there are > 100 messages, start culling from the top
 			while ($('.message').length > 100) {
-				$('.message:first-child').remove();
+				$('.message:first-child')
+					.trigger('wl:message:remove')
+					.remove();
 			}
 
 			Chat.autoScroll();
@@ -182,17 +189,19 @@ $(function() {
 
 	// Server has established a connection, ready to go!
 	socket.on('ready', function() {
-		// Remove 'connecting' messsage
+		$(document).trigger('wl:socket:ready');
 	});
 
 	// If we recieve a message line, add it to the view
 	// The messages are sanitised serverside.
 	socket.on('message', function(data) {
+		$(document).trigger('wl:socket:message:recieve', [data]);
 		Chat.add(data);
 	});
 
 	// Scrollback is just lots of messages sent at once, to save the massive message spam
 	socket.on('scrollback', function(messages) {
+		$(document).trigger('wl:socket:scrollback', [messages]);
 		for (var i = 0; i < messages.length; i++) {
 			Chat.add(messages[i]);
 		}
@@ -200,23 +209,28 @@ $(function() {
 
 	// Server sent us userdata
 	socket.on('userData', function(userData) {
+		$(document).trigger('wl:socket:userData', [userData]);
 		Users.dataRecieved(userData);
 	});
 
 	// A user has joined
 	socket.on('join', function(userID) {
+		$(document).trigger('wl:socket:join', [userID]);
 		Users.join(userID);
 	});
 
 	// User has left
 	socket.on('part', function(userID) {
+		$(document).trigger('wl:socket:part', [userID]);
 		Users.part(userID);
 	});
 
 	// If we send a message, send it to the server
 	$('.message-input').submit(function() {
-		var messageBox = $(this).find('[name="message"]');
-		socket.emit('message', messageBox.val());
+		var messageBox = $(this).find('[name="message"]')
+		  , message = messageBox.val();
+		$(document).trigger('wl:socket:message:send', [message]);
+		socket.emit('message', message);
 		messageBox.val('');
 	})
 });
