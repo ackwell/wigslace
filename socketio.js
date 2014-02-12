@@ -64,38 +64,41 @@ function setUpSocketIO(server) {
 			});
 		});
 
-		// Process incoming messages, then broadcast to clients
-		socket.on('message', function(message) {
-			// Does the job, but mucks up markdown quotes. Meh.
-			message = message
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;');
+		// If they are muted, don't even bother registering the message callback
+		if (user.permissions.chat) {
+			// Process incoming messages, then broadcast to clients
+			socket.on('message', function(message) {
+				// Does the job, but mucks up markdown quotes. Meh.
+				message = message
+					.replace(/</g, '&lt;')
+					.replace(/>/g, '&gt;');
 
-			// Trim whitespace, ignore if empty
-			message = message.trim();
-			if (!message.length) { return; }
+				// Trim whitespace, ignore if empty
+				message = message.trim();
+				if (!message.length) { return; }
 
-			// Do the formatting server side because fukkit
-			message = bboxed(message);
-			message = marked(message);
+				// Do the formatting server side because fukkit
+				message = bboxed(message);
+				message = marked(message);
 
-			// <a> tags need target="_blank"
-			message = message.replace(/<a/g, '<a target="_blank"');
+				// <a> tags need target="_blank"
+				message = message.replace(/<a/g, '<a target="_blank"');
 
-			// Form the message object to save/send
-			var data = {
-			  user: user._id
-			, message: message
-			, time: new Date
-			};
+				// Form the message object to save/send
+				var data = {
+				  user: user._id
+				, message: message
+				, time: new Date
+				};
 
-			// Save to db
-			wigslace.models.chat.log(data, function(err, logEntry) {
-				io.sockets.emit('message', data);
+				// Save to db
+				wigslace.models.chat.log(data, function(err, logEntry) {
+					io.sockets.emit('message', data);
 
-				// Apbot goes here eventually. Or something.
+					// Apbot goes here eventually. Or something.
+				});
 			});
-		});
+		}
 
 		// Client disconnected. Decrease client count and send part if required
 		socket.on('disconnect', function() {
