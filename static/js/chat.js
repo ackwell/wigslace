@@ -31,6 +31,7 @@ $(function() {
 		// Returns a user object, or requests from server and returns null
 	, get: function(userID) {
 			if (!Users.users.hasOwnProperty(userID)) {
+				Users.users[userID] = undefined;
 				socket.emit('getUser', userID);
 				return null;
 			}
@@ -40,6 +41,7 @@ $(function() {
 		// Server has sent us data about a user :D
 	, dataRecieved: function(user) {
 			Users.users[user._id] = user;
+
 			// Look through the dom for any pending stuff and sort it out
 			$('.pending-'+user._id).each(function() {
 				var template = $(this).find('.template').html();
@@ -49,6 +51,15 @@ $(function() {
 				}
 				$(this).replaceWith(template);
 			});
+
+			// Add/remove their mute status
+			var userListEntry = $('.user-list .user-'+user._id);
+			if (user.permissions.chat) {
+				userListEntry.removeClass('global mute');
+			} else {
+				userListEntry.addClass('global mute');
+			}
+
 		}
 
 	, join: function(userID) {

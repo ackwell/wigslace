@@ -19,11 +19,17 @@ function Wigslace(app) {
 
 // Set up the various bits and pieces of the server
 Wigslace.prototype.setUp = function() {
+  this.setUpUtils();
 	this.setUpTemplating();
 	this.setUpDatabase();
 	this.setUpSessions();
 	this.models.users.setUpPassport();
 	this.setUpRoutes();
+}
+
+// Grab utils
+Wigslace.prototype.setUpUtils = function() {
+  this.utils = requireDir('./utils');
 }
 
 // Set up templating engine

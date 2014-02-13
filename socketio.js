@@ -8,7 +8,8 @@ var bboxed = require('bboxed')
 
 
 function setUpSocketIO(server) {
-	var io = socketio.listen(server);
+	var io = socketio.listen(server)
+	  , userSockets = {};
 
 	// Add the custom tags to bboxed
 	bboxed.addTags(wigslace.config.tags);
@@ -32,7 +33,39 @@ function setUpSocketIO(server) {
 
 	// Let the logic begin
 	io.sockets.on('connection', function(socket) {
-		var user = socket.handshake.user;
+		var user = socket.handshake.user
+		  , isActive = true
+		  , lastActive = new Date;
+
+		// If no record of user, chuck it into the object
+		if (!(user._id in userSockets)) {
+			userSockets[user._id] = []
+		}
+		// Add the socket to the records
+		userSockets[user._id].push(socket);
+		 
+		// Every 30 seconds, check if active, and update from DB.
+		var checkInterval = setInterval(function() {
+			// If they are active, check for inactivity (10 minutes since last active)
+			if (isActive && new Date(new Date - lastActive).getMinutes() >= 10) {
+				isActive = false;
+				io.sockets.emit('active', {user: user._id, status: false});
+			}
+
+			// If they are still active, grab a new copy of their user object
+			if (isActive) {
+				wigslace.models.users.getBy('_id', user._id, function(err, userData) {
+					// If the data is the same, don't change anything
+					if (!wigslace.utils.deepCompare(user, userData)) {
+						user = userData;
+						var email = userData.email;
+						delete userData.email;
+						io.sockets.emit('userData', userData);
+						userData.email = email;
+					}
+				});
+			}
+		}, 30000);
 
 		// Add the user to the onlineusers list, respond with a ready
 		wigslace.models.chat.addUser(user._id, function(err, success) {
@@ -64,44 +97,58 @@ function setUpSocketIO(server) {
 			});
 		});
 
-		// If they are muted, don't even bother registering the message callback
-		if (user.permissions.chat) {
-			// Process incoming messages, then broadcast to clients
-			socket.on('message', function(message) {
-				// Does the job, but mucks up markdown quotes. Meh.
-				message = message
-					.replace(/</g, '&lt;')
-					.replace(/>/g, '&gt;');
+		// Process incoming messages, then broadcast to clients
+		socket.on('message', function(message) {
+			var postTime = lastActive = new Date;
+			if (!isActive) {
+				isActive = true;
+				io.sockets.emit('active', {user: user._id, status: true});
+			}
 
-				// Trim whitespace, ignore if empty
-				message = message.trim();
-				if (!message.length) { return; }
+			// If they do not have chat permission, ignore.
+			if (!user.permissions.chat) { return; }
 
-				// Do the formatting server side because fukkit
-				message = bboxed(message);
-				message = marked(message);
+			// Does the job, but mucks up markdown quotes. Meh.
+			message = message
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;');
 
-				// <a> tags need target="_blank"
-				message = message.replace(/<a/g, '<a target="_blank"');
+			// Trim whitespace, ignore if empty
+			message = message.trim();
+			if (!message.length) { return; }
 
-				// Form the message object to save/send
-				var data = {
-				  user: user._id
-				, message: message
-				, time: new Date
-				};
+			// Do the formatting server side because fukkit
+			message = bboxed(message);
+			message = marked(message);
 
-				// Save to db
-				wigslace.models.chat.log(data, function(err, logEntry) {
-					io.sockets.emit('message', data);
+			// <a> tags need target="_blank"
+			message = message.replace(/<a/g, '<a target="_blank"');
 
-					// Apbot goes here eventually. Or something.
-				});
+			// Form the message object to save/send
+			var data = {
+			  user: user._id
+			, message: message
+			, time: postTime
+			};
+
+			// Save to db
+			wigslace.models.chat.log(data, function(err, logEntry) {
+				io.sockets.emit('message', data);
+
+				// Apbot goes here eventually. Or something.
 			});
-		}
+		});
 
 		// Client disconnected. Decrease client count and send part if required
 		socket.on('disconnect', function() {
+			// Remove the check interval function
+			clearTimeout(checkInterval);
+
+			// Remove this socket from the user object
+			var index = userSockets[user._id].indexOf(socket);
+			if (index > -1) { userSockets[user._id].splice(index, 1); }
+
+			// Tell the DB there's been a part
 			wigslace.models.chat.removeUser(user._id, function(err, shouldPart) {
 				if (shouldPart) { socket.broadcast.emit('part', user._id); }
 			})
