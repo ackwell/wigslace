@@ -62,6 +62,15 @@ $(function() {
 
 		}
 
+	, active: function(userID, active) {
+			var userListEntry = $('.user-list .user-'+userID);
+			if (active) {
+				userListEntry.removeClass('inactive');
+			} else {
+				userListEntry.addClass('inactive');
+			}
+		}
+
 	, join: function(userID) {
 			// User has joined, if they are already online (multi client), ignore
 			if ($.inArray(userID, Users.online) > -1) { return; }
@@ -222,6 +231,12 @@ $(function() {
 	socket.on('userData', function(userData) {
 		$(document).trigger('wl:socket:userData', [userData]);
 		Users.dataRecieved(userData);
+	});
+
+	// Someone is now (in)active
+	socket.on('active', function(active) {
+		$(document).trigger('wl:socket:active', [active]);
+		Users.active(active.user, active.status);
 	});
 
 	// A user has joined
