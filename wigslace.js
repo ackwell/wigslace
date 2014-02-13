@@ -19,7 +19,7 @@ function Wigslace(app) {
 
 // Set up the various bits and pieces of the server
 Wigslace.prototype.setUp = function() {
-  this.setUpUtils();
+	this.setUpUtils();
 	this.setUpTemplating();
 	this.setUpDatabase();
 	this.setUpSessions();
@@ -29,7 +29,7 @@ Wigslace.prototype.setUp = function() {
 
 // Grab utils
 Wigslace.prototype.setUpUtils = function() {
-  this.utils = requireDir('./utils');
+	this.utils = requireDir('./utils');
 }
 
 // Set up templating engine
