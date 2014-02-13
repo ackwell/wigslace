@@ -48,7 +48,7 @@ function setUpSocketIO(server) {
 		// Every 30 seconds, check if active, and update from DB.
 		var checkInterval = setInterval(function() {
 			// If they are active, check for inactivity (10 minutes since last active)
-			if (isActive && new Date(new Date - lastActive).getMinutes() >= 1/*0*/) {
+			if (isActive && new Date(new Date - lastActive).getMinutes() >= 10) {
 				isActive = false;
 				io.sockets.emit('active', {user: user._id, status: false});
 			}
