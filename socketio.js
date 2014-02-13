@@ -9,7 +9,7 @@ var bboxed = require('bboxed')
 
 function setUpSocketIO(server) {
 	var io = socketio.listen(server)
-	  , userSockets = {};
+	  , userStatus = {};
 
 	// Add the custom tags to bboxed
 	bboxed.addTags(wigslace.config.tags);
@@ -38,16 +38,17 @@ function setUpSocketIO(server) {
 		  , lastActive = new Date;
 
 		// If no record of user, chuck it into the object
-		if (!(user._id in userSockets)) {
-			userSockets[user._id] = []
+		if (!(user._id in userStatus)) {
+			userStatus[user._id] = {sockets:[], active: true}
 		}
 		// Add the socket to the records
-		userSockets[user._id].push(socket);
+		userStatus[user._id].sockets.push(socket);
+		isActive = userStatus[user._id].active;
 		 
 		// Every 30 seconds, check if active, and update from DB.
 		var checkInterval = setInterval(function() {
 			// If they are active, check for inactivity (10 minutes since last active)
-			if (isActive && new Date(new Date - lastActive).getMinutes() >= 10) {
+			if (isActive && new Date(new Date - lastActive).getMinutes() >= 1/*0*/) {
 				isActive = false;
 				io.sockets.emit('active', {user: user._id, status: false});
 			}
@@ -65,6 +66,8 @@ function setUpSocketIO(server) {
 					}
 				});
 			}
+
+			userStatus[user._id].active = isActive;
 		}, 30000);
 
 		// Add the user to the onlineusers list, respond with a ready
@@ -72,11 +75,16 @@ function setUpSocketIO(server) {
 			socket.emit('ready');
 			// Tell the other clients that the new client has joined
 			socket.broadcast.emit('join', user._id);
+			socket.broadcast.emit('active', {user: user._id, status: isActive});
 			// Send the new client a join for each current user
 			wigslace.models.chat.getAllUsers(function(err, users) {
 				users.forEach(function(user) {
 					// Only send ID, client will request additional data later
-					socket.emit('join', user.user._id);
+					var id = user.user._id;
+					socket.emit('join', id);
+					if (id in userStatus) {
+						socket.emit('active', {user: id, status: userStatus[id].active});
+					}
 				});
 			});
 		});
@@ -103,6 +111,7 @@ function setUpSocketIO(server) {
 			if (!isActive) {
 				isActive = true;
 				io.sockets.emit('active', {user: user._id, status: true});
+				userStatus[user._id].active = isActive;
 			}
 
 			// If they do not have chat permission, ignore.
@@ -145,8 +154,8 @@ function setUpSocketIO(server) {
 			clearTimeout(checkInterval);
 
 			// Remove this socket from the user object
-			var index = userSockets[user._id].indexOf(socket);
-			if (index > -1) { userSockets[user._id].splice(index, 1); }
+			var index = userStatus[user._id].sockets.indexOf(socket);
+			if (index > -1) { userStatus[user._id].sockets.splice(index, 1); }
 
 			// Tell the DB there's been a part
 			wigslace.models.chat.removeUser(user._id, function(err, shouldPart) {
