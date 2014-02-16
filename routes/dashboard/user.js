@@ -64,15 +64,19 @@ module.exports = {
 			try {
 				validator.check(avatar.type, 'File uploaded was not an image.').contains('image');
 			} catch (e) {
-				req.flash('error', e.message);
+				// req.flash('error', e.message);
+				response = {type: 'error', message: e.message};
 				valid = false;
 			}
 
 			// Limit file size to 4mb (pretty generous really)
 			if (avatar.size/1024/1024 > 4) {
-				req.flash('error', 'File is larger than 4mb.');
+				// req.flash('error', 'File is larger than 4mb.');
+				response = {type: 'error', message: 'File is larger than 4Mb.'};
 				valid = false;
 			}
+
+			var response = {}
 
 			// If it's valid, resize, move into place, save to user object
 			if (valid) {
@@ -96,15 +100,33 @@ module.exports = {
 
 				if (valid) {
 					req.user.avatar = path;
-					req.flash('info', 'Avatar updated. (Might take a few seconds to be visible site-wide)')
-				} else { req.flash('error', 'Something went wrong.'); }
+					response = {type:'info', message:'Avatar updated. (Might take a few seconds to be visible site-wide)'};
+				} else { response = {type:'error', message:'Something went wrong.'}; }
 			}
 		}
 		// Delete the temp file
 		fs.unlink(avatar.path);
 
 		// Save the (possibly) edited user object back to the db
-		if (valid) { wigslace.models.users.edit(req.user); }
-		res.redirect('/dashboard/'); // This should be replaced with JSON response
+		if (valid) {
+			wigslace.models.users.edit(req.user, function(err) {
+				if (err) { return res.send({type: 'error', message: 'Avatar could not be saved. Please try again at a later time.'}); }
+				res.send(response);
+			});
+		}
+	},
+
+	chat$post: function(req, res) {
+		if (!req.user) { return res.send({type: 'error', message: 'You are not logged in.'}); }
+		var post = req.body
+		  , settings = {};
+
+		settings.useXHR = post.useXHR == 'true';
+
+		req.user.settings = settings;
+		wigslace.models.users.edit(req.user, function(err) {
+			if (err) { return res.send({type: 'error', message: 'Settings could not be saved. Please try again at a later time.'}); }
+			res.send({type: 'success', message: 'Settings saved.'});
+		});
 	}
 }

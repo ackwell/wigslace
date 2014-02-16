@@ -212,7 +212,7 @@ User.prototype.changePassword = function(name, password, done) {
 }
 
 // Modify user data
-User.prototype.edit = function(data) {
+User.prototype.edit = function(data, done) {
 	var _id = data._id;
 
 	delete data._id;
@@ -220,6 +220,7 @@ User.prototype.edit = function(data) {
 
 	this.User.findOneAndUpdate({_id: _id}, data, function(err) {
 		if (err) { console.log(err); }
+		return done && done()
 	});
 }
 

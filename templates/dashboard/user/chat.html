@@ -1,0 +1,11 @@
+
+<span class="title hide">Chat Settings</span>
+<form action="{{ pageURL }}" method="post">
+	<label>
+		<input type="checkbox" name="useXHR" value="true"
+			{% if user.settings.useXHR %} checked="checked"{% endif %}
+		/>
+		<abbr title="Only try if chat is clearly not working as intended.">Use fallback chat connection.</abbr>
+	</label>
+	<button type="submit" class="button primary">Save</button>
+</form>

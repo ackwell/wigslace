@@ -35,22 +35,23 @@ $(function() {
 		setPjaxedValues(document.location.pathname.split('/').pop());
 	}
 
-	// Change password modal
-	$('#pjax.password form').submit(function(e) {
+	$(document).on('submit', '#pjax form', function(e) {
+		console.log('FORM SUBMIT');
 		e.preventDefault();
-		var saveButton = $('#pjax.password button[type="submit"]');
+		var saveButton = $('#pjax button[type="submit"]');
 		$(this).ajaxSubmit(function(response) {
 			// Remove existing alerts
 			$('.alert .close').click();
 
 			// Add an alert
 			var error = response.type == 'error';
-			$('#pjax.password form').prepend(
+			$('#pjax form').prepend(
 				'<div class="alert '+(error?'error':'info')+'">'+
 				'<button type="button" class="close icon">&times;</button>'+
 				(error?'<strong>Error!</strong> ':'')+response.message+'</div>'
 			);
 			if (!error) {
+				// If no error, reset the password page
 				$('#pjax.password input').val('');
 			}
 		});
