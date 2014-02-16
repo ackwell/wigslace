@@ -20,6 +20,13 @@
 	{% endblock %}
 </head>
 <body class="{{ page }}">
+	{% if user && user.settings %}
+		{# If there is a logged-in user, chuck their settings in HTML for client side JS #}
+		<div class="hide user-settings">
+			{{ JSON.stringify(user.settings) }}
+		</div>
+	{% endif %}
+
 	{% include 'navbar.html' %}
 
 	{# Main body #}

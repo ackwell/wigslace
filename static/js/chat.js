@@ -18,8 +18,20 @@ if (!String.prototype.format) {
  * Chat code
  */
 $(function() {
+	// Load any settings passed through from the server.
+	var settingsElement = $('.user-settings')
+	  , settings = {}
+	if (settingsElement.length) {
+		settings = JSON.parse(settingsElement.text());
+	}
+
 	// Set up a socket.io connection
-	var socket = io.connect(window.location.origin);
+	var socketSettings = {};
+	if (settings.useXHR) {
+		socketSettings['transports'] = ['xhr-polling'];
+	}
+
+	var socket = io.connect(window.location.origin, socketSettings);
 
 	/*
 	 * User List
