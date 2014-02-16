@@ -219,8 +219,7 @@ User.prototype.edit = function(data, done) {
 	delete data.hash; // Just in case it got in there somehow
 
 	this.User.findOneAndUpdate({_id: _id}, data, function(err) {
-		if (err) { console.log(err); }
-		return done && done()
+		return done && done(err)
 	});
 }
 
