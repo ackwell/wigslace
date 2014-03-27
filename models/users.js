@@ -233,6 +233,11 @@ User.prototype.setPermission = function(username, permission, setting, done) {
 User.prototype.strategy = function(username, password, done) {
 	// Stupid shennanigans because LocalStrategy overwrites the 'this' context
 	var self = wigslace.models.users;
+	self.authenticate(username, password, 'site', done);
+}
+
+User.prototype.authenticate = function(username, password, permission, done) {
+	var self = this;
 
 	// Check correct login details
 	self.checkPassword(username, password, function(err, correct, data) {
@@ -248,7 +253,7 @@ User.prototype.strategy = function(username, password, done) {
 		self.get(username, function(err, user) {
 			if (err) { return done(err); }
 
-			if (!user.permissions.site) {
+			if (permission && !user.permissions[permission]) {
 				return done(null, false, {message: "You have been banned."});
 			}
 
