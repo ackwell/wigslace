@@ -1,4 +1,3 @@
-
 // Requires
 var bboxed = require('bboxed')
   , express = require('express')
@@ -127,6 +126,17 @@ SocketClient.prototype.bindEvents = function() {
 	for (var i = 0; i < events.length; i++) {
 		var e = events[i]
 		this.socket.on(e, this[e].bind(this));
+	}
+}
+
+// TODO: move me somewhere more reasonable and use me
+// TODO: check that this works and I haven't made a glaring error
+SocketClient.prototype.autoBindEvents = function() {
+	for (var name in self) {
+		if (!self.hasOwnProperty(name)) continue;
+		if (name.match(/_on/)) {
+			self[name.replace('_on', 'on')] = self[name].bind(this);
+		}
 	}
 }
 
