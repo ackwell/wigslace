@@ -2,10 +2,10 @@ module.exports = {
 	// YouTube
 	'yt': {
 		open: function(token) {
-			var argument = token.arguments.tag;
+			var argument = token.arguments.tag; 
 
 			// Not a valid ID
-			if (!argument.match(/^[^"&\/ ]{11}$/)) {
+			if (!argument || !argument.match(/^[^"&\/ ]{11}$/)) {
 				return false;
 			}
 
@@ -19,5 +19,12 @@ module.exports = {
 	'spoiler': {
 		open: '<span class="spoiler">',
 		close: '</span>'
+	},
+
+	// Inline code
+	'code' : {
+		allowInnerTags: false,
+		open: '<code>',
+		close: '</code>'
 	}
 }
