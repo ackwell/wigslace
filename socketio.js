@@ -90,13 +90,16 @@ SocketClient.prototype.setUp = function() {
 SocketClient.prototype.joinChat = function() {
 	var user = this.socket.handshake.user;
 
+	// Add the socket into the chat broadcast room
+	this.socket.join('chat');
+
 	// Add the user to the onlineusers list, tell it that it's ready.
 	wigslace.models.chat.addUser(user._id, function(err, success) {
-		this.socket.emit('ready');
+		this.socket.emit('ready', user._id);
 
 		// Tell the other clients that the new client has joined and is active
 		this.socket.emit('join', user._id);
-		this.socket.broadcast.emit('join', user._id);
+		this.socket.broadcast.to('chat').emit('join', user._id);
 		this.activityChecker.set(user._id, true);
 	}.bind(this));
 }
@@ -144,7 +147,7 @@ SocketClient.prototype.message = function(message) {
 	var postTime = new Date
 	  , user = this.socket.handshake.user;
 
-	this.activityChecker.seen(id, postTime);
+	this.activityChecker.seen(user._id, postTime);
 
 	// If they do not have chat permission, ignore.
 	if (!user.permissions.chat) { return; }
@@ -177,8 +180,8 @@ SocketClient.prototype.message = function(message) {
 		// Need to emit in both directions.
 		// Would use io.sockets.emit but too lazy to work
 		// out how to drag it into scope nicely
-		this.socket.broadcast.emit('message', data);
 		this.socket.emit('message', data);
+		this.socket.broadcast.to('chat').emit('message', data);
 	}.bind(this));
 }
 
@@ -188,7 +191,7 @@ SocketClient.prototype.disconnect = function() {
 	// Tell the DB there's been a part
 	wigslace.models.chat.removeUser(user._id, function(err, shouldPart) {
 		if (shouldPart) {
-			this.socket.broadcast.emit('part', user._id);
+			this.socket.broadcast.to('chat').emit('part', user._id);
 		}
 	}.bind(this))
 }
@@ -219,7 +222,7 @@ ActivityChecker.prototype.set = function(id, active) {
 	}
 	this.statuses[id].active = active;
 
-	this.io.sockets.emit('active', {user: id, status: active});
+	this.io.sockets.in('chat').emit('active', {user: id, status: active});
 }
 
 ActivityChecker.prototype.get = function(id) {
