@@ -10,6 +10,7 @@ function SocketServer(server) {
 	this.io = socketio.listen(server);
 
 	this.activityChecker = new ActivityChecker(this.io);
+	this.socketIDs = {};
 
 	this.setConfig();
 	this.io.set('authorization', this.authorization);
@@ -50,13 +51,26 @@ SocketServer.prototype.authorization = function(data, accept) {
 }
 
 SocketServer.prototype.onConnection = function(socket) {
-	client = new SocketClient(socket, this.activityChecker);
+	if (socket.id in this.socketIDs && this.socketIDs[socket.id]) {
+		console.log(socket.id + ': Duplicate socket.io connection ID, ignoring.')
+		return
+	}
+
+	client = new SocketClient(socket, this);
+	this.socketIDs[socket.id] = true;
+}
+
+SocketServer.prototype.onDisconnection = function(socket) {
+	delete this.socketIDs[socket.io];
 }
 
 
-function SocketClient(socket, activityChecker) {
+function SocketClient(socket, server) {
 	this.socket = socket;
-	this.activityChecker = activityChecker;
+	this.server = server;
+	this.activityChecker = server.activityChecker;
+
+	this.beenSetUp = false;
 
 	var user = this.socket.handshake.user;
 	if (user) {
@@ -80,6 +94,9 @@ SocketClient.prototype.authenticate = function(data) {
 }
 
 SocketClient.prototype.setUp = function() {
+	if (this.beenSetUp) { return; }
+	this.beenSetUp = true;
+
 	// Called when the user has connection and has authenticated if required
 	this.joinChat();
 	this.sendClientList();
@@ -98,8 +115,7 @@ SocketClient.prototype.joinChat = function() {
 		this.socket.emit('ready', user._id);
 
 		// Tell the other clients that the new client has joined and is active
-		this.socket.emit('join', user._id);
-		this.socket.broadcast.to('chat').emit('join', user._id);
+		this.server.io.sockets.in('chat').emit('join', user._id);
 		this.activityChecker.set(user._id, true);
 	}.bind(this));
 }
@@ -177,11 +193,7 @@ SocketClient.prototype.message = function(message) {
 
 	// Save to db
 	wigslace.models.chat.log(data, function(err, logEntry) {
-		// Need to emit in both directions.
-		// Would use io.sockets.emit but too lazy to work
-		// out how to drag it into scope nicely
-		this.socket.emit('message', data);
-		this.socket.broadcast.to('chat').emit('message', data);
+		this.server.io.sockets.in('chat').emit('message', data)
 	}.bind(this));
 }
 
@@ -194,6 +206,9 @@ SocketClient.prototype.disconnect = function() {
 			this.socket.broadcast.to('chat').emit('part', user._id);
 		}
 	}.bind(this))
+
+	// Tell the server that we've disconnected as well
+	this.server.onDisconnection(this.socket)
 }
 
 
