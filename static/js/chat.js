@@ -251,6 +251,15 @@ $(function() {
 		Users.active(active.user, active.status);
 	});
 
+	// Server has sent a user listing
+	socket.on('user:list', function(users) {
+		for (var i = 0; i < users.length; i++) {
+			var user = users[i];
+			Users.join(user.user);
+			Users.active(user.user, user.status);
+		}
+	});
+
 	// A user has joined
 	socket.on('user:join', function(userID) {
 		$(document).trigger('wl:socket:join', [userID]);

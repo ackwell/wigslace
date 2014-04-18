@@ -123,16 +123,8 @@ SocketClient.prototype.joinChat = function() {
 }
 
 SocketClient.prototype.sendClientList = function() {
-	// Send the new client a join for each current user
-	wigslace.models.chat.getAllUsers(function(err, users) {
-		for (var i = 0; i < users.length; i++) {
-			var user = users[i];
-			// Only send ID, client will request additional data later
-			var id = user.user._id;
-			this.socket.emit('user:join', id);
-			this.socket.emit('user:active', {user: id, status: this.activityChecker.get(id)});
-		}
-	}.bind(this));
+	// Meh.
+	this.user_list();
 }
 
 SocketClient.prototype.sendBacklog = function() {
@@ -143,7 +135,12 @@ SocketClient.prototype.sendBacklog = function() {
 }
 
 SocketClient.prototype.bindEvents = function() {
-	var events = ['user:get', 'mesg:in', 'disconnect']
+	var events = [
+		'user:get',
+		'user:list',
+		'mesg:in',
+		'disconnect'
+	]
 
 	for (var i = 0; i < events.length; i++) {
 		var e = events[i]
@@ -158,6 +155,22 @@ SocketClient.prototype.user_get = function(userID) {
 
 		delete userData.email;
 		this.socket.emit('user:data', userData);
+	}.bind(this));
+}
+
+SocketClient.prototype.user_list = function() {
+	wigslace.models.chat.getAllUsers(function(err, users) {
+		var list = [];
+		for (var i = 0; i < users.length; i++) {
+			var user = users[i];
+			// Only send ID, client will request additional data later
+			var id = user.user._id;
+			list.push({
+				user: id,
+				status: this.activityChecker.get(id)
+			});
+		}
+		this.socket.emit('user:list', list);
 	}.bind(this));
 }
 
