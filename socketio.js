@@ -72,6 +72,11 @@ function SocketClient(socket, server) {
 
 	this.beenSetUp = false;
 
+	// Store per-client settings
+	this.settings = {
+		plaintext: false
+	};
+
 	var user = this.socket.handshake.user;
 	if (user) {
 		// User has already authenticated (session), set up.
@@ -139,6 +144,7 @@ SocketClient.prototype.bindEvents = function() {
 		'user:get',
 		'user:list',
 		'mesg:in',
+		'opts:set',
 		'disconnect'
 	]
 
@@ -192,12 +198,9 @@ SocketClient.prototype.mesg_in = function(message) {
 	message = message.trim();
 	if (!message.length) { return; }
 
-	// Do the formatting server side because fukkit
-	message = bboxed(message);
-	message = marked(message);
-
-	// <a> tags need target="_blank"
-	message = message.replace(/<a/g, '<a target="_blank"');
+	if (!this.settings.plaintext) {
+		message = this.formatMessage(message);
+	}
 
 	// Form the message object to save/send
 	var data = {
@@ -210,6 +213,21 @@ SocketClient.prototype.mesg_in = function(message) {
 	wigslace.models.chat.log(data, function(err, logEntry) {
 		this.server.io.sockets.in('chat').emit('mesg:out', data)
 	}.bind(this));
+}
+
+SocketClient.prototype.formatMessage = function(message) {
+	// Do the formatting server side because fukkit
+	message = bboxed(message);
+	message = marked(message);
+
+	// <a> tags need target="_blank"
+	message = message.replace(/<a/g, '<a target="_blank"');
+
+	return message;
+}
+
+SocketClient.prototype.opts_set = function(data) {
+	this.settings[data.option] = data.value;
 }
 
 SocketClient.prototype.disconnect = function() {
