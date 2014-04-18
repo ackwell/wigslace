@@ -105,10 +105,10 @@ SocketClient.prototype.setUp = function() {
 	this.beenSetUp = true;
 
 	// Called when the user has connection and has authenticated if required
+	this.bindEvents();
 	this.joinChat();
 	this.sendClientList();
 	this.sendBacklog();
-	this.bindEvents();
 }
 
 SocketClient.prototype.joinChat = function() {
