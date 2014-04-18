@@ -44,7 +44,7 @@ $(function() {
 	, get: function(userID) {
 			if (!Users.users.hasOwnProperty(userID)) {
 				Users.users[userID] = undefined;
-				socket.emit('getUser', userID);
+				socket.emit('user:get', userID);
 				return null;
 			}
 			return Users.users[userID];
@@ -220,19 +220,19 @@ $(function() {
 	 */
 
 	// Server has established a connection, ready to go!
-	socket.on('ready', function() {
+	socket.on('conn:ready', function() {
 		$(document).trigger('wl:socket:ready');
 	});
 
 	// If we recieve a message line, add it to the view
 	// The messages are sanitised serverside.
-	socket.on('message', function(data) {
+	socket.on('mesg:out', function(data) {
 		$(document).trigger('wl:socket:message:recieve', [data]);
 		Chat.add(data);
 	});
 
 	// Scrollback is just lots of messages sent at once, to save the massive message spam
-	socket.on('scrollback', function(messages) {
+	socket.on('mesg:scrollback', function(messages) {
 		$(document).trigger('wl:socket:scrollback', [messages]);
 		for (var i = 0; i < messages.length; i++) {
 			Chat.add(messages[i]);
@@ -240,25 +240,25 @@ $(function() {
 	});
 
 	// Server sent us userdata
-	socket.on('userData', function(userData) {
+	socket.on('user:data', function(userData) {
 		$(document).trigger('wl:socket:userData', [userData]);
 		Users.dataRecieved(userData);
 	});
 
 	// Someone is now (in)active
-	socket.on('active', function(active) {
+	socket.on('user:active', function(active) {
 		$(document).trigger('wl:socket:active', [active]);
 		Users.active(active.user, active.status);
 	});
 
 	// A user has joined
-	socket.on('join', function(userID) {
+	socket.on('user:join', function(userID) {
 		$(document).trigger('wl:socket:join', [userID]);
 		Users.join(userID);
 	});
 
 	// User has left
-	socket.on('part', function(userID) {
+	socket.on('user:part', function(userID) {
 		$(document).trigger('wl:socket:part', [userID]);
 		Users.part(userID);
 	});
@@ -268,7 +268,7 @@ $(function() {
 		var messageBox = $(this).find('[name="message"]')
 		  , message = messageBox.val();
 		$(document).trigger('wl:socket:message:send', [message]);
-		socket.emit('message', message);
+		socket.emit('mesg:in', message);
 		messageBox.val('');
 	})
 });

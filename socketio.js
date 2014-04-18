@@ -78,7 +78,7 @@ function SocketClient(socket, server) {
 		this.setUp();
 	} else {
 		// User has not authenticated via session, wait for auth signal
-		this.socket.on('authenticate', this.authenticate.bind(this));
+		this.socket.on('auth:do', this.authenticate.bind(this));
 	}
 }
 
@@ -114,10 +114,10 @@ SocketClient.prototype.joinChat = function() {
 
 	// Add the user to the onlineusers list, tell it that it's ready.
 	wigslace.models.chat.addUser(user._id, function(err, success) {
-		this.socket.emit('ready', user._id);
+		this.socket.emit('conn:ready', user._id);
 
 		// Tell the other clients that the new client has joined and is active
-		this.server.io.sockets.in('chat').emit('join', user._id);
+		this.server.io.sockets.in('chat').emit('user:join', user._id);
 		this.activityChecker.set(user._id, true);
 	}.bind(this));
 }
@@ -129,8 +129,8 @@ SocketClient.prototype.sendClientList = function() {
 			var user = users[i];
 			// Only send ID, client will request additional data later
 			var id = user.user._id;
-			this.socket.emit('join', id);
-			this.socket.emit('active', {user: id, status: this.activityChecker.get(id)});
+			this.socket.emit('user:join', id);
+			this.socket.emit('user:active', {user: id, status: this.activityChecker.get(id)});
 		}
 	}.bind(this));
 }
@@ -138,30 +138,30 @@ SocketClient.prototype.sendClientList = function() {
 SocketClient.prototype.sendBacklog = function() {
 	// Send them the backlog
 	wigslace.models.chat.getLog(function(err, log) {
-		this.socket.emit('scrollback', log);
+		this.socket.emit('mesg:scrollback', log);
 	}.bind(this));
 }
 
 SocketClient.prototype.bindEvents = function() {
-	var events = ['getUser', 'message', 'disconnect']
+	var events = ['user:get', 'mesg:in', 'disconnect']
 
 	for (var i = 0; i < events.length; i++) {
 		var e = events[i]
-		this.socket.on(e, this[e].bind(this));
+		this.socket.on(e, this[e.replace(':', '_')].bind(this));
 	}
 }
 
-SocketClient.prototype.getUser = function(userID) {
+SocketClient.prototype.user_get = function(userID) {
 	wigslace.models.users.getBy('_id', userID, function(err, userData) {
 		if (err) { return console.log(err); }
-		if (!userData) { return console.log('Client requested details for non-existant user '+userID); }
+		if (!userData) { return console.log('Client requested details for non-existent user '+userID); }
 
 		delete userData.email;
-		this.socket.emit('userData', userData);
+		this.socket.emit('user:data', userData);
 	}.bind(this));
 }
 
-SocketClient.prototype.message = function(message) {
+SocketClient.prototype.mesg_in = function(message) {
 	var postTime = new Date
 	  , user = this.socket.handshake.user;
 
@@ -195,7 +195,7 @@ SocketClient.prototype.message = function(message) {
 
 	// Save to db
 	wigslace.models.chat.log(data, function(err, logEntry) {
-		this.server.io.sockets.in('chat').emit('message', data)
+		this.server.io.sockets.in('chat').emit('mesg:out', data)
 	}.bind(this));
 }
 
@@ -205,7 +205,7 @@ SocketClient.prototype.disconnect = function() {
 	// Tell the DB there's been a part
 	wigslace.models.chat.removeUser(user._id, function(err, shouldPart) {
 		if (shouldPart) {
-			this.socket.broadcast.to('chat').emit('part', user._id);
+			this.socket.broadcast.to('chat').emit('user:part', user._id);
 		}
 	}.bind(this))
 
@@ -239,7 +239,7 @@ ActivityChecker.prototype.set = function(id, active) {
 	}
 	this.statuses[id].active = active;
 
-	this.io.sockets.in('chat').emit('active', {user: id, status: active});
+	this.io.sockets.in('chat').emit('user:active', {user: id, status: active});
 }
 
 ActivityChecker.prototype.get = function(id) {
