@@ -85,13 +85,13 @@ function SocketClient(socket, server) {
 SocketClient.prototype.authenticate = function(data) {
 	wigslace.models.users.authenticate(data.username, data.password, 'chat', function(err, user) {
 		if (!user) {
-			this.socket.emit('accessDenied');
+			this.socket.emit('auth:fail');
 			return
 		}
 
 		this.socket.handshake.user = user;
 		this.setUp();
-		this.socket.emit('accessGranted');
+		this.socket.emit('auth:succeed');
 	}.bind(this));
 }
 
