@@ -9,7 +9,7 @@ module.exports = {
 				return false;
 			}
 
-			return '<div class="youtube"><iframe src="//www.youtube.com/embed/'+argument+'" frameborder="0" allowfullscreen></iframe></div>';
+			return '<div class="youtube"><iframe src="//www.youtube.com/embed/'+argument+'?rel=0" frameborder="0" allowfullscreen></iframe></div>';
 		},
 		close: '',
 		hasCloseTag: false
