@@ -1,6 +1,7 @@
 
 // Requires
 var bboxed = require('bboxed')
+  , cookieParser = require('cookie-parser')
   , express = require('express')
   , marked = require('marked')
   , passio = require('passport.socketio')
@@ -32,7 +33,7 @@ SocketServer.prototype.setConfig = function() {
 SocketServer.prototype.authorization = function(data, accept) {
 	// Attempt to authorize with passport.socketio (for web clients)
 	passio.authorize({
-	  cookieParser: express.cookieParser
+	  cookieParser: cookieParser
 	, key: wigslace.app.get('cookieSessionKey')
 	, secret: wigslace.app.get('secretKey')
 	, store: wigslace.sessionStore

@@ -55,14 +55,15 @@ module.exports = {
 		if (!req.user) { return res.send({type: 'error', message: 'You are not logged in.'}); }
 
 		var avatar = req.files.avatar
-		  , valid = true;
+		  , valid = true
+		  , response = {};
 
 		// Only process avatar if new one uploaded.
 		if (avatar.size) {
 
 			// Make sure it's an image
 			try {
-				validator.check(avatar.type, 'File uploaded was not an image.').contains('image');
+				validator.check(avatar.mimetype, 'File uploaded was not an image.').contains('image');
 			} catch (e) {
 				// req.flash('error', e.message);
 				response = {type: 'error', message: e.message};
@@ -75,8 +76,6 @@ module.exports = {
 				response = {type: 'error', message: 'File is larger than 4Mb.'};
 				valid = false;
 			}
-
-			var response = {}
 
 			// If it's valid, resize, move into place, save to user object
 			if (valid) {
@@ -113,6 +112,8 @@ module.exports = {
 				if (err) { return res.send({type: 'error', message: 'Avatar could not be saved. Please try again at a later time.'}); }
 				res.send(response);
 			});
+		} else {
+			res.send(response);
 		}
 	},
 

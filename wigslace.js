@@ -1,11 +1,16 @@
 
 // Requires
-var connectFlash = require('connect-flash')
+var bodyParser = require('body-parser')
+  , connectFlash = require('connect-flash')
   , connectMongo = require('connect-mongo')
+  , cookieParser = require('cookie-parser')
   , express = require('express')
+  , favicon = require('serve-favicon')
   , less = require('less-middleware')
   , mongoose = require('mongoose')
+  , multer = require('multer')
   , requireDir = require('require-dir')
+  , session = require('express-session')
   , swig = require('swig');
 
 // Wigslace object
@@ -41,10 +46,7 @@ Wigslace.prototype.setUpTemplating = function() {
 	swig.setDefaults({cache: this.config.server.production? "memory" : false});
 
 	// LESS init
-	this.app.use(less({
-	  src: __dirname + '/static'
-	, compress: true
-	}));
+	this.app.use(less(__dirname + '/static', null, null, {compress: true}));
 }
 
 // Load the database, require the modules, as set them up.
@@ -63,17 +65,20 @@ Wigslace.prototype.setUpDatabase = function() {
 
 // Set up session handling
 Wigslace.prototype.setUpSessions = function() {
-	var MongoStore = connectMongo(express)
+	var MongoStore = connectMongo(session);
 	this.sessionStore = new MongoStore({mongoose_connection: mongoose.connections[0]});
 
 	this.app.set('secretKey', this.config.sessions.key);
 	this.app.set('cookieSessionKey', 'sid');
 
-	this.app.use(express.cookieParser(this.app.get('secretKey')));
-	this.app.use(express.bodyParser());
-	this.app.use(express.session({
-	  key: this.app.get('cookieSessionKey')
+	this.app.use(cookieParser(this.app.get('secretKey')));
+	this.app.use(bodyParser.urlencoded({extended: true}));
+	this.app.use(session({
+	  name: this.app.get('cookieSessionKey')
+	, secret: this.app.get('secretKey')
 	, store: this.sessionStore
+	, resave: true
+	, saveUninitialized: true
 	}));
 	this.app.use(connectFlash());
 }
@@ -81,8 +86,11 @@ Wigslace.prototype.setUpSessions = function() {
 // Set up the server's routing
 Wigslace.prototype.setUpRoutes = function() {
 	// Handle static files
-	this.app.use(express.favicon(__dirname + '/static/favicon.ico'));
+	this.app.use(favicon(__dirname + '/static/favicon.ico'));
 	this.app.use(express.static(__dirname + '/static'));
+
+	// Form image uploads
+	this.app.use(multer({dest: __dirname + '/static/uploads'}));
 
 	// Dynamically set up routes
 	this.routes = requireDir('./routes', {recurse: true});
