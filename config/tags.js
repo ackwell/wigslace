@@ -26,5 +26,11 @@ module.exports = {
 		allowInnerTags: false,
 		open: '<code>',
 		close: '</code>'
+	},
+
+	'video': {
+		allowInnerTags: false,
+		open: '<video src="',
+		close: '" controls>Your browser does not support HTML5 video.</video>'
 	}
 }
